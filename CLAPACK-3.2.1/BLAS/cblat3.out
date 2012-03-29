@@ -1,0 +1,84 @@
+ TESTS OF THE COMPLEX          LEVEL 3 BLAS
+
+ THE FOLLOWING PARAMETER VALUES WILL BE USED:
+   FOR N                   0     1     2     3     5     9
+   FOR ALPHA          (  .0,  .0)  ( 1.0,  .0)  (  .7, -.9)  
+   FOR BETA           (  .0,  .0)  ( 1.0,  .0)  ( 1.3,-1.1)  
+
+ ROUTINES PASS COMPUTATIONAL TESTS IF TEST RATIO IS LESS THAN   16.00
+
+ RELATIVE MACHINE PRECISION IS TAKEN TO BE  1.1E-19
+
+ CGEMM  PASSED THE TESTS OF ERROR-EXITS
+
+ ******* FATAL ERROR - COMPUTED RESULT IS LESS THAN HALF ACCURATE *******
+                       EXPECTED RESULT                    COMPUTED RESULT
+       1  (    .244216    ,   -.135886    )  (    .244216    ,   -.135886    )
+ ******* CGEMM  FAILED ON CALL NUMBER:
+   3489: CGEMM ('N','N',  1,  1,  1,( 1.0,  .0), A,  2, B,  2,( 1.3,-1.1), C,  2).
+
+ CHEMM  PASSED THE TESTS OF ERROR-EXITS
+
+ ******* FATAL ERROR - COMPUTED RESULT IS LESS THAN HALF ACCURATE *******
+                       EXPECTED RESULT                    COMPUTED RESULT
+       1  (    .759341E-02,   -.721077E-02)  (    .759341E-02,   -.721077E-02)
+ ******* CHEMM  FAILED ON CALL NUMBER:
+    268: CHEMM ('L','L',  1,  1,(  .7, -.9), A,  2, B,  2,(  .0,  .0), C,  2)    .
+
+ CSYMM  PASSED THE TESTS OF ERROR-EXITS
+
+ ******* FATAL ERROR - COMPUTED RESULT IS LESS THAN HALF ACCURATE *******
+                       EXPECTED RESULT                    COMPUTED RESULT
+       1  (    .157079    ,    .150333E-01)  (    .157079    ,    .150333E-01)
+ ******* CSYMM  FAILED ON CALL NUMBER:
+    259: CSYMM ('L','U',  1,  1,(  .7, -.9), A,  2, B,  2,(  .0,  .0), C,  2)    .
+
+ CTRMM  PASSED THE TESTS OF ERROR-EXITS
+
+ ******* FATAL ERROR - COMPUTED RESULT IS LESS THAN HALF ACCURATE *******
+                       EXPECTED RESULT                    COMPUTED RESULT
+       1  (    .286955    ,   -.110380E-02)  (    .286955    ,   -.110379E-02)
+ ******* CTRMM  FAILED ON CALL NUMBER:
+    528: CTRMM ('L','L','N','N',  1,  1,(  .7, -.9), A,  2, B,  2)               .
+
+ CTRSM  PASSED THE TESTS OF ERROR-EXITS
+
+ ******* FATAL ERROR - COMPUTED RESULT IS LESS THAN HALF ACCURATE *******
+                       EXPECTED RESULT                    COMPUTED RESULT
+       1  (    .496504    ,    .298701    )  (    .496504    ,    .298701    )
+ ******* CTRSM  FAILED ON CALL NUMBER:
+    515: CTRSM ('L','U','T','N',  1,  1,( 1.0,  .0), A,  2, B,  2)               .
+
+ CHERK  PASSED THE TESTS OF ERROR-EXITS
+
+ ******* FATAL ERROR - COMPUTED RESULT IS LESS THAN HALF ACCURATE *******
+                       EXPECTED RESULT                    COMPUTED RESULT
+       1  (   -.416548    ,     .00000    )  (   -.416548    ,     .00000    )
+ ******* CHERK  FAILED ON CALL NUMBER:
+    261: CHERK ('U','N',  1,  1,  .7, A,  2, 1.3, C,  2)                         .
+
+ CSYRK  PASSED THE TESTS OF ERROR-EXITS
+
+ ******* FATAL ERROR - COMPUTED RESULT IS LESS THAN HALF ACCURATE *******
+                       EXPECTED RESULT                    COMPUTED RESULT
+       1  (   -.267071    ,    .318297    )  (   -.267071    ,    .318297    )
+ ******* CSYRK  FAILED ON CALL NUMBER:
+    258: CSYRK ('U','N',  1,  1,( 1.0,  .0) , A,  2,( 1.3,-1.1), C,  2)          .
+
+ CHER2K PASSED THE TESTS OF ERROR-EXITS
+
+ ******* FATAL ERROR - COMPUTED RESULT IS LESS THAN HALF ACCURATE *******
+                       EXPECTED RESULT                    COMPUTED RESULT
+       1  (    .278084E-01,   -.126244E-08)  (    .278084E-01,     .00000    )
+ ******* CHER2K FAILED ON CALL NUMBER:
+    256: CHER2K('U','N',  1,  1,( 1.0,  .0), A,  2, B,  2,  .0, C,  2)           .
+
+ CSYR2K PASSED THE TESTS OF ERROR-EXITS
+
+ ******* FATAL ERROR - COMPUTED RESULT IS LESS THAN HALF ACCURATE *******
+                       EXPECTED RESULT                    COMPUTED RESULT
+       1  (   -.241548E-01,    .768971    )  (   -.241548E-01,    .768971    )
+ ******* CSYR2K FAILED ON CALL NUMBER:
+    258: CSYR2K('U','N',  1,  1,( 1.0,  .0), A,  2, B,  2,( 1.3,-1.1), C,  2)    .
+
+ END OF TESTS

@@ -1,0 +1,50 @@
+ Real BLAS Test Program Results
+
+
+ Test of subprogram number  1             DDOT 
+                                    ----- PASS -----
+
+ Test of subprogram number  2            DAXPY 
+                                       FAIL
+
+ CASE  N INCX INCY MODE  I                             COMP(I)                             TRUE(I)  DIFFERENCE     SIZE(I)
+
+    2  1    1    1 9999  1                       .68000000E+00                       .68000000E+00  -.1110E-15   .1170E+01
+    2  2    1    1 9999  1                       .68000000E+00                       .68000000E+00  -.1110E-15   .1170E+01
+    2  4    1    1 9999  1                       .68000000E+00                       .68000000E+00  -.1110E-15   .1170E+01
+    2  1    2   -2 9999  1                       .68000000E+00                       .68000000E+00  -.1110E-15   .1170E+01
+    2  1   -2    1 9999  1                       .68000000E+00                       .68000000E+00  -.1110E-15   .1170E+01
+    2  2   -2    1 9999  2                      -.72000000E+00                      -.72000000E+00  -.1110E-15   .1170E+01
+    2  4   -2    1 9999  4                       .88000000E+00                       .88000000E+00  -.1110E-15   .1170E+01
+    2  1   -1   -2 9999  1                       .68000000E+00                       .68000000E+00  -.1110E-15   .1170E+01
+    2  2   -1   -2 9999  1                       .68000000E+00                       .68000000E+00  -.1110E-15   .1170E+01
+    2  4   -1   -2 9999  1                       .68000000E+00                       .68000000E+00  -.1110E-15   .1170E+01
+
+ Test of subprogram number  3            DROTG 
+                                    ----- PASS -----
+
+ Test of subprogram number  4             DROT 
+                                       FAIL
+
+ CASE  N INCX INCY MODE  I                             COMP(I)                             TRUE(I)  DIFFERENCE     SIZE(I)
+
+    4  4   -2    1 9999  1                       .90000000E+00                       .90000000E+00  -.1110E-15   .1170E+01
+    4  4   -2    1 9999  5                       .18000000E+00                       .18000000E+00   .8327E-16   .1170E+01
+
+ Test of subprogram number  5            DCOPY 
+                                    ----- PASS -----
+
+ Test of subprogram number  6            DSWAP 
+                                    ----- PASS -----
+
+ Test of subprogram number  7            DNRM2 
+                                    ----- PASS -----
+
+ Test of subprogram number  8            DASUM 
+                                    ----- PASS -----
+
+ Test of subprogram number  9            DSCAL 
+                                    ----- PASS -----
+
+ Test of subprogram number 10            IDAMAX
+                                    ----- PASS -----

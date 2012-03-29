@@ -1,0 +1,156 @@
+ TESTS OF THE REAL             LEVEL 2 BLAS
+
+ THE FOLLOWING PARAMETER VALUES WILL BE USED:
+   FOR N                   0     1     2     3     5     9
+   FOR K                   0     1     2     4
+   FOR INCX AND INCY       1     2    -1    -2
+   FOR ALPHA              .0   1.0    .7
+   FOR BETA               .0   1.0    .9
+
+ ROUTINES PASS COMPUTATIONAL TESTS IF TEST RATIO IS LESS THAN   16.00
+
+ RELATIVE MACHINE PRECISION IS TAKEN TO BE  1.1E-19
+
+ SGEMV  PASSED THE TESTS OF ERROR-EXITS
+
+ ******* FATAL ERROR - COMPUTED RESULT IS LESS THAN HALF ACCURATE *******
+           EXPECTED RESULT   COMPUTED RESULT
+       1       .449874           .449874    
+       2      -.583124          -.583124    
+ ******* SGEMV  FAILED ON CALL NUMBER:
+      8: SGEMV ('N',  2,  1, 1.0, A,  3, X, 1, 1.0, Y, 1)         .
+
+ SGBMV  PASSED THE TESTS OF ERROR-EXITS
+
+ ******* FATAL ERROR - COMPUTED RESULT IS LESS THAN HALF ACCURATE *******
+           EXPECTED RESULT   COMPUTED RESULT
+       1       .254575           .254575    
+       2       .346653           .346653    
+ ******* SGBMV  FAILED ON CALL NUMBER:
+     17: SGBMV ('N',  2,  1,  0,  0, 1.0, A,  2, X, 1, 1.0, Y, 2) .
+
+ SSYMV  PASSED THE TESTS OF ERROR-EXITS
+
+ ******* FATAL ERROR - COMPUTED RESULT IS LESS THAN HALF ACCURATE *******
+           EXPECTED RESULT   COMPUTED RESULT
+       1       .564376E-01       .564376E-01
+ ******* SSYMV  FAILED ON CALL NUMBER:
+     10: SSYMV ('U',  1,  .7, A,  2, X, 1,  .9, Y, 1)             .
+
+ SSBMV  PASSED THE TESTS OF ERROR-EXITS
+
+ ******* FATAL ERROR - COMPUTED RESULT IS LESS THAN HALF ACCURATE *******
+           EXPECTED RESULT   COMPUTED RESULT
+       1       .564376E-01       .564376E-01
+ ******* SSBMV  FAILED ON CALL NUMBER:
+     10: SSBMV ('U',  1,  0,  .7, A,  2, X, 1,  .9, Y, 1)         .
+
+ SSPMV  PASSED THE TESTS OF ERROR-EXITS
+
+ ******* FATAL ERROR - COMPUTED RESULT IS LESS THAN HALF ACCURATE *******
+           EXPECTED RESULT   COMPUTED RESULT
+       1       .564376E-01       .564376E-01
+ ******* SSPMV  FAILED ON CALL NUMBER:
+     10: SSPMV ('U',  1,  .7, AP, X, 1,  .9, Y, 1)                .
+
+ STRMV  PASSED THE TESTS OF ERROR-EXITS
+
+ ******* FATAL ERROR - COMPUTED RESULT IS LESS THAN HALF ACCURATE *******
+           EXPECTED RESULT   COMPUTED RESULT
+       1      -.384032E-01      -.384032E-01
+       2       .322535           .322535    
+       3       .357143           .357143    
+ ******* STRMV  FAILED ON CALL NUMBER:
+    109: STRMV ('U','T','U',  3, A,  4, X,-2)                     .
+
+ STBMV  PASSED THE TESTS OF ERROR-EXITS
+
+ ******* FATAL ERROR - COMPUTED RESULT IS LESS THAN HALF ACCURATE *******
+           EXPECTED RESULT   COMPUTED RESULT
+       1       .132485E-02       .132485E-02
+       2      -.403967E-01      -.403967E-01
+       3       .250773           .250773    
+ ******* STBMV  FAILED ON CALL NUMBER:
+    448: STBMV ('U','T','N',  3,  1, A,  3, X,-1)                 .
+
+ STPMV  PASSED THE TESTS OF ERROR-EXITS
+
+ ******* FATAL ERROR - COMPUTED RESULT IS LESS THAN HALF ACCURATE *******
+           EXPECTED RESULT   COMPUTED RESULT
+       1      -.384032E-01      -.384032E-01
+       2       .322535           .322535    
+       3       .357143           .357143    
+ ******* STPMV  FAILED ON CALL NUMBER:
+    109: STPMV ('U','T','U',  3, AP, X,-2)                        .
+
+ STRSV  PASSED THE TESTS OF ERROR-EXITS
+
+ ******* FATAL ERROR - COMPUTED RESULT IS LESS THAN HALF ACCURATE *******
+           EXPECTED RESULT   COMPUTED RESULT
+       1       .447053           .447053    
+ ******* STRSV  FAILED ON CALL NUMBER:
+      6: STRSV ('U','N','N',  1, A,  2, X, 1)                     .
+
+ STBSV  PASSED THE TESTS OF ERROR-EXITS
+
+ ******* FATAL ERROR - COMPUTED RESULT IS LESS THAN HALF ACCURATE *******
+           EXPECTED RESULT   COMPUTED RESULT
+       1       .447053           .447053    
+ ******* STBSV  FAILED ON CALL NUMBER:
+      6: STBSV ('U','N','N',  1,  0, A,  2, X, 1)                 .
+
+ STPSV  PASSED THE TESTS OF ERROR-EXITS
+
+ ******* FATAL ERROR - COMPUTED RESULT IS LESS THAN HALF ACCURATE *******
+           EXPECTED RESULT   COMPUTED RESULT
+       1       .447053           .447053    
+ ******* STPSV  FAILED ON CALL NUMBER:
+      6: STPSV ('U','N','N',  1, AP, X, 1)                        .
+
+ SGER   PASSED THE TESTS OF ERROR-EXITS
+
+ ******* FATAL ERROR - COMPUTED RESULT IS LESS THAN HALF ACCURATE *******
+           EXPECTED RESULT   COMPUTED RESULT
+       1       .466533           .466533    
+       2       .131374           .131374    
+      THESE ARE THE RESULTS FOR COLUMN   1
+ ******* SGER   FAILED ON CALL NUMBER:
+      6: SGER  (  2,  1,  .7, X, 1, Y, 1, A,  3)                  .
+
+ SSYR   PASSED THE TESTS OF ERROR-EXITS
+
+ ******* FATAL ERROR - COMPUTED RESULT IS LESS THAN HALF ACCURATE *******
+           EXPECTED RESULT   COMPUTED RESULT
+       1       .217905           .217905    
+      THESE ARE THE RESULTS FOR COLUMN   1
+ ******* SSYR   FAILED ON CALL NUMBER:
+     13: SSYR  ('U',  1,  .7, X,-2, A,  2)                        .
+
+ SSPR   PASSED THE TESTS OF ERROR-EXITS
+
+ ******* FATAL ERROR - COMPUTED RESULT IS LESS THAN HALF ACCURATE *******
+           EXPECTED RESULT   COMPUTED RESULT
+       1       .217905           .217905    
+      THESE ARE THE RESULTS FOR COLUMN   1
+ ******* SSPR   FAILED ON CALL NUMBER:
+     13: SSPR  ('U',  1,  .7, X,-2, AP)                           .
+
+ SSYR2  PASSED THE TESTS OF ERROR-EXITS
+
+ ******* FATAL ERROR - COMPUTED RESULT IS LESS THAN HALF ACCURATE *******
+           EXPECTED RESULT   COMPUTED RESULT
+       1      -.530486          -.530487    
+      THESE ARE THE RESULTS FOR COLUMN   1
+ ******* SSYR2  FAILED ON CALL NUMBER:
+      3: SSYR2 ('U',  1, 1.0, X, 1, Y, 1, A,  2)                  .
+
+ SSPR2  PASSED THE TESTS OF ERROR-EXITS
+
+ ******* FATAL ERROR - COMPUTED RESULT IS LESS THAN HALF ACCURATE *******
+           EXPECTED RESULT   COMPUTED RESULT
+       1      -.530486          -.530487    
+      THESE ARE THE RESULTS FOR COLUMN   1
+ ******* SSPR2  FAILED ON CALL NUMBER:
+      3: SSPR2 ('U',  1, 1.0, X, 1, Y, 1, AP)                     .
+
+ END OF TESTS

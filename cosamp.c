@@ -65,7 +65,7 @@ end
  */ 
 
 #include "f2c.h"
-#include "stdio.h"
+#include <stdio.h>
 #include "clapack.h"
 
 #define SIZE 4

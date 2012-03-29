@@ -1,0 +1,166 @@
+ TESTS OF THE COMPLEX          LEVEL 2 BLAS
+
+ THE FOLLOWING PARAMETER VALUES WILL BE USED:
+   FOR N                   0     1     2     3     5     9
+   FOR K                   0     1     2     4
+   FOR INCX AND INCY       1     2    -1    -2
+   FOR ALPHA          (  .0,  .0)  ( 1.0,  .0)  (  .7, -.9)  
+   FOR BETA           (  .0,  .0)  ( 1.0,  .0)  ( 1.3,-1.1)  
+
+ ROUTINES PASS COMPUTATIONAL TESTS IF TEST RATIO IS LESS THAN   16.00
+
+ RELATIVE MACHINE PRECISION IS TAKEN TO BE  1.1E-19
+
+ CGEMV  PASSED THE TESTS OF ERROR-EXITS
+
+ ******* FATAL ERROR - COMPUTED RESULT IS LESS THAN HALF ACCURATE *******
+                       EXPECTED RESULT                    COMPUTED RESULT
+       1  (    .551243    ,   -.533049E-01)  (    .551243    ,   -.533049E-01)
+       2  (   -.816325E-01,    .389502    )  (   -.816325E-01,    .389502    )
+ ******* CGEMV  FAILED ON CALL NUMBER:
+     10: CGEMV ('N',  2,  1,(  .7, -.9), A,  3, X, 1,(  .0,  .0), Y, 1)         .
+
+ CGBMV  PASSED THE TESTS OF ERROR-EXITS
+
+ ******* FATAL ERROR - COMPUTED RESULT IS LESS THAN HALF ACCURATE *******
+                       EXPECTED RESULT                    COMPUTED RESULT
+       1  (    .446175    ,   -.597479E-01)  (    .446175    ,   -.597480E-01)
+       2  (    .186813    ,   -.929071E-01)  (    .186813    ,   -.929071E-01)
+ ******* CGBMV  FAILED ON CALL NUMBER:
+      8: CGBMV ('N',  2,  1,  0,  0,( 1.0,  .0), A,  2, X, 1,( 1.0,  .0), Y, 1) .
+
+ CHEMV  PASSED THE TESTS OF ERROR-EXITS
+
+ ******* FATAL ERROR - COMPUTED RESULT IS LESS THAN HALF ACCURATE *******
+                       EXPECTED RESULT                    COMPUTED RESULT
+       1  (   -.466542    ,   -.464928    )  (   -.466542    ,   -.464928    )
+ ******* CHEMV  FAILED ON CALL NUMBER:
+     15: CHEMV ('U',  1,( 1.0,  .0), A,  2, X, 1,( 1.0,  .0), Y, 2)             .
+
+ CHBMV  PASSED THE TESTS OF ERROR-EXITS
+
+ ******* FATAL ERROR - COMPUTED RESULT IS LESS THAN HALF ACCURATE *******
+                       EXPECTED RESULT                    COMPUTED RESULT
+       1  (   -.466542    ,   -.464928    )  (   -.466542    ,   -.464928    )
+ ******* CHBMV  FAILED ON CALL NUMBER:
+     15: CHBMV ('U',  1,  0,( 1.0,  .0), A,  2, X, 1,( 1.0,  .0), Y, 2)         .
+
+ CHPMV  PASSED THE TESTS OF ERROR-EXITS
+
+ ******* FATAL ERROR - COMPUTED RESULT IS LESS THAN HALF ACCURATE *******
+                       EXPECTED RESULT                    COMPUTED RESULT
+       1  (   -.466542    ,   -.464928    )  (   -.466542    ,   -.464928    )
+ ******* CHPMV  FAILED ON CALL NUMBER:
+     15: CHPMV ('U',  1,( 1.0,  .0), AP, X, 1,( 1.0,  .0), Y, 2)                .
+
+ CTRMV  PASSED THE TESTS OF ERROR-EXITS
+
+ ******* FATAL ERROR - COMPUTED RESULT IS LESS THAN HALF ACCURATE *******
+                       EXPECTED RESULT                    COMPUTED RESULT
+       1  (   -.372714E-01,    .148732E-01)  (   -.372714E-01,    .148732E-01)
+       2  (    .206350    ,    .201489    )  (    .206350    ,    .201489    )
+       3  (    .437063    ,    .509491E-01)  (    .437063    ,    .509491E-01)
+ ******* CTRMV  FAILED ON CALL NUMBER:
+    108: CTRMV ('U','T','U',  3, A,  4, X,-1)                                   .
+
+ CTBMV  PASSED THE TESTS OF ERROR-EXITS
+
+ ******* FATAL ERROR - COMPUTED RESULT IS LESS THAN HALF ACCURATE *******
+                       EXPECTED RESULT                    COMPUTED RESULT
+       1  (     .00000    ,     .00000    )  (     .00000    ,     .00000    )
+       2  (    .766733    ,    .306693    )  (    .766733    ,    .306693    )
+       3  (    .293085    ,   -.324303E-02)  (    .293085    ,   -.324304E-02)
+ ******* CTBMV  FAILED ON CALL NUMBER:
+    442: CTBMV ('U','T','U',  3,  1, A,  3, X, 1)                               .
+
+ CTPMV  PASSED THE TESTS OF ERROR-EXITS
+
+ ******* FATAL ERROR - COMPUTED RESULT IS LESS THAN HALF ACCURATE *******
+                       EXPECTED RESULT                    COMPUTED RESULT
+       1  (   -.372714E-01,    .148732E-01)  (   -.372714E-01,    .148732E-01)
+       2  (    .206350    ,    .201489    )  (    .206350    ,    .201489    )
+       3  (    .437063    ,    .509491E-01)  (    .437063    ,    .509491E-01)
+ ******* CTPMV  FAILED ON CALL NUMBER:
+    108: CTPMV ('U','T','U',  3, AP, X,-1)                                      .
+
+ CTRSV  PASSED THE TESTS OF ERROR-EXITS
+
+ ******* FATAL ERROR - COMPUTED RESULT IS LESS THAN HALF ACCURATE *******
+                       EXPECTED RESULT                    COMPUTED RESULT
+       1  (    .766733    ,    .442557    )  (    .766733    ,    .442557    )
+ ******* CTRSV  FAILED ON CALL NUMBER:
+     16: CTRSV ('U','T','N',  1, A,  2, X,-1)                                   .
+
+ CTBSV  PASSED THE TESTS OF ERROR-EXITS
+
+ ******* FATAL ERROR - COMPUTED RESULT IS LESS THAN HALF ACCURATE *******
+                       EXPECTED RESULT                    COMPUTED RESULT
+       1  (    .766733    ,    .442557    )  (    .766733    ,    .442557    )
+ ******* CTBSV  FAILED ON CALL NUMBER:
+     16: CTBSV ('U','T','N',  1,  0, A,  2, X,-1)                               .
+
+ CTPSV  PASSED THE TESTS OF ERROR-EXITS
+
+ ******* FATAL ERROR - COMPUTED RESULT IS LESS THAN HALF ACCURATE *******
+                       EXPECTED RESULT                    COMPUTED RESULT
+       1  (    .766733    ,    .442557    )  (    .766733    ,    .442557    )
+ ******* CTPSV  FAILED ON CALL NUMBER:
+     16: CTPSV ('U','T','N',  1, AP, X,-1)                                      .
+
+ CGERC  PASSED THE TESTS OF ERROR-EXITS
+
+ ******* FATAL ERROR - COMPUTED RESULT IS LESS THAN HALF ACCURATE *******
+                       EXPECTED RESULT                    COMPUTED RESULT
+       1  (    .466533    ,    .306693    )  (    .466533    ,    .306693    )
+       2  (    .174812    ,    .312383    )  (    .174811    ,    .312383    )
+      THESE ARE THE RESULTS FOR COLUMN   1
+ ******* CGERC  FAILED ON CALL NUMBER:
+      6: CGERC (  2,  1,(  .7, -.9), X, 1, Y, 1, A,  3)                         .
+
+ CGERU  PASSED THE TESTS OF ERROR-EXITS
+
+ ******* FATAL ERROR - COMPUTED RESULT IS LESS THAN HALF ACCURATE *******
+                       EXPECTED RESULT                    COMPUTED RESULT
+       1  (   -.129870E-01,   -.156843    )  (   -.129870E-01,   -.156843    )
+       2  (    .403252    ,    .335631    )  (    .403252    ,    .335631    )
+      THESE ARE THE RESULTS FOR COLUMN   1
+ ******* CGERU  FAILED ON CALL NUMBER:
+     11: CGERU (  2,  1,( 1.0,  .0), X, 1, Y,-1, A,  3)                         .
+
+ CHER   PASSED THE TESTS OF ERROR-EXITS
+
+ ******* FATAL ERROR - COMPUTED RESULT IS LESS THAN HALF ACCURATE *******
+                       EXPECTED RESULT                    COMPUTED RESULT
+       1  (    .344701    ,     .00000    )  (    .344701    ,     .00000    )
+      THESE ARE THE RESULTS FOR COLUMN   1
+ ******* CHER   FAILED ON CALL NUMBER:
+      7: CHER  ('U',  1,  .7, X, 2, A,  2)                                      .
+
+ CHPR   PASSED THE TESTS OF ERROR-EXITS
+
+ ******* FATAL ERROR - COMPUTED RESULT IS LESS THAN HALF ACCURATE *******
+                       EXPECTED RESULT                    COMPUTED RESULT
+       1  (    .344701    ,     .00000    )  (    .344701    ,     .00000    )
+      THESE ARE THE RESULTS FOR COLUMN   1
+ ******* CHPR   FAILED ON CALL NUMBER:
+      7: CHPR  ('U',  1,  .7, X, 2, AP)                                         .
+
+ CHER2  PASSED THE TESTS OF ERROR-EXITS
+
+ ******* FATAL ERROR - COMPUTED RESULT IS LESS THAN HALF ACCURATE *******
+                       EXPECTED RESULT                    COMPUTED RESULT
+       1  (    .808594E-01,    .942535E-08)  (    .808594E-01,     .00000    )
+      THESE ARE THE RESULTS FOR COLUMN   1
+ ******* CHER2  FAILED ON CALL NUMBER:
+      4: CHER2 ('U',  1,(  .7, -.9), X, 1, Y, 1, A,  2)                         .
+
+ CHPR2  PASSED THE TESTS OF ERROR-EXITS
+
+ ******* FATAL ERROR - COMPUTED RESULT IS LESS THAN HALF ACCURATE *******
+                       EXPECTED RESULT                    COMPUTED RESULT
+       1  (    .808594E-01,    .942535E-08)  (    .808594E-01,     .00000    )
+      THESE ARE THE RESULTS FOR COLUMN   1
+ ******* CHPR2  FAILED ON CALL NUMBER:
+      4: CHPR2 ('U',  1,(  .7, -.9), X, 1, Y, 1, AP)                            .
+
+ END OF TESTS

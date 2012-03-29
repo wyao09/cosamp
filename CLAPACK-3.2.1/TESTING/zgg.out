@@ -1,0 +1,84 @@
+
+ Tests of the Generalized Nonsymmetric Eigenvalue Problem routines
+
+ LAPACK VERSION 3.2.0
+
+ The following parameter values will be used:
+    M:         0     1     2     3     5    10    16
+    N:         0     1     2     3     5    10    16
+    NB:        1     1     2     2
+    NBMIN:    40    40     2     2
+    NS:        2     4     2     4
+    MAXB:     40    40     2     2
+    NBCOL:    40    40     2     2
+
+ Relative machine underflow is taken to be     .222507-307
+ Relative machine overflow  is taken to be     .179769+309
+ Relative machine precision is taken to be     .111022E-15
+
+ Routines pass computational tests if test ratio is less than   20.00
+
+
+ ZGG routines passed the tests of the error exits ( 27 tests done)
+
+
+ ZGG:  NB =   1, NBMIN =  40, NS =   2, MAXB =  40, NBCOL =  40
+
+ All tests for ZGG passed the threshold ( 2184 tests run)
+
+ All tests for ZGG drivers  passed the threshold (  1274 tests run)
+
+
+ ZGG:  NB =   1, NBMIN =  40, NS =   4, MAXB =  40, NBCOL =  40
+
+ All tests for ZGG passed the threshold ( 2184 tests run)
+
+ All tests for ZGG drivers  passed the threshold (  1274 tests run)
+
+
+ ZGG:  NB =   2, NBMIN =   2, NS =   2, MAXB =   2, NBCOL =   2
+
+ All tests for ZGG passed the threshold ( 2184 tests run)
+
+ All tests for ZGG drivers  passed the threshold (  1274 tests run)
+
+
+ ZGG:  NB =   2, NBMIN =   2, NS =   4, MAXB =   2, NBCOL =   2
+
+ All tests for ZGG passed the threshold ( 2184 tests run)
+ ZDRVGG: ZGEGV returned INFO=     5.
+         N=     5, JTYPE=    16, ISEED=( 2910,  603, 2572, 2141)
+
+ ZGG -- Complex Generalized eigenvalue problem driver
+ Matrix types (see ZDRVGG for details): 
+ Special Matrices:                       (J'=transposed Jordan block)
+   1=(0,0)  2=(I,0)  3=(0,I)  4=(I,I)  5=(J',J')  6=(diag(J',I), diag(I,J'))
+ Diagonal Matrices:  ( D=diag(0,1,2,...) )
+   7=(D,I)   9=(large*D, small*I)  11=(large*I, small*D)  13=(large*D, large*I)
+   8=(I,D)  10=(small*D, large*I)  12=(small*I, large*D)  14=(small*D, small*I)
+  15=(D, reversed D)
+ Matrices Rotated by Random Unitary Matrices U, V:
+  16=Transposed Jordan Blocks             19=geometric alpha, beta=0,1
+  17=arithm. alpha&beta                   20=arithmetic alpha, beta=0,1
+  18=clustered alpha, beta=0,1            21=random alpha, beta=0,1
+ Large & Small Matrices:
+  22=(large, small)   23=(small,large)    24=(small,small)    25=(large,large)
+  26=random O(1) matrices.
+
+ Tests performed:  (S is Schur, T is triangular, Q and Z are unitary,
+                    l and r are the appropriate left and right
+                   eigenvectors, resp., a is alpha, b is beta, and
+                   * means conjugate transpose.)
+ 1 = | A - Q S Z* | / ( |A| n ulp )      2 = | B - Q T Z* | / ( |B| n ulp )
+ 3 = | I - QQ* | / ( n ulp )             4 = | I - ZZ* | / ( n ulp )
+ 5 = difference between (alpha,beta) and diagonals of (S,T)
+ 6 = max | ( b A - a B )* l | / const.   7 = max | ( b A - a B ) r | / const.
+
+ Matrix order=    5, type=16, seed=2910, 603,2572,2141, result   6 is 4.504E+15
+ ZGG drivers:      1 out of   1273 tests failed to pass the threshold
+ *** Error code from ZDRVGG =    5
+
+
+ End of tests
+ Total time used =          .50 seconds
+

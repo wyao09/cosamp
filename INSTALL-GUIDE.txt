@@ -1,0 +1,54 @@
+This is how I installed LAPACK on Ubuntu while working for Prof Kung.
+
+Starting files:
+clapack.tgz (currently version 3.2.1 from http://www.netlib.org/clapack/)
+dgesv_example.c (from http://theochem.mercer.edu/clapack/)
+Makefile (from http://theochem.mercer.edu/clapack/)
+
+Do the following exactly. (Official guide here: 
+http://www.netlib.org/clapack/readme.install)
+
+1. Place clapack.tgz in appropriate root folder.
+2. 'tar xvf clapack.tgz' to create CLAPACK-3.2.1 folder
+3. 'cd CLAPACK-3.2.1'
+   'mv make.inc.example make.inc'
+   'make f2clib' to build f2c libraries
+   'make blaslib' to build the BLAS library included with distribution.
+   'make' to build CLAPACK
+
+That it for installation, but the trickier part is the Makefile due to
+the varying versions of the source code online. If we use the dgesv_example.c
+file from above, the Makefile should read:
+
+-------------------------------------------------------------
+
+CC = gcc
+ROOTPATH = /home/wyao/CLAPACK-3.2.1
+INCDIRS = -I$(ROOTPATH)/SRC -I$(ROOTPATH) \
+          -I$(ROOTPATH)/INCLUDE
+F2CDIR  = $(ROOTPATH)/F2CLIBS
+LDLIBS  = $(ROOTPATH)/lapack_LINUX.a \
+          $(ROOTPATH)/blas_LINUX.a \
+	  $(F2CDIR)/libf2c.a -lm
+
+dgesv_example: dgesv_example.o
+	$(CC) dgesv_example.o  $(LDLIBS)  -o dgesv_example 
+
+dgesv_example.o: dgesv_example.c
+	$(CC) dgesv_example.c  $(INCDIRS) -c 
+
+zgesv_example: zgesv_example.o
+	$(CC) zgesv_example.o  $(LDLIBS)  -o zgesv_example 
+
+zgesv_example.o: zgesv_example.c
+	$(CC) zgesv_example.c  $(INCDIRS) -c 
+
+-------------------------------------------------------------
+
+Note that the library path to libf2c.a is different from the Makefile
+from http://theochem.mercer.edu/clapack/Makefile. The ROOTPATH should
+also be modified appropriately.
+
+Place the Makefile and dgesv_example.c file in any directory. If you run 
+make now, the executable dgesv_example file should be compiled successfully
+(probably with a few inconsequential warnings).
