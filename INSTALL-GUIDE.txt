@@ -52,3 +52,42 @@ also be modified appropriately.
 Place the Makefile and dgesv_example.c file in any directory. If you run 
 make now, the executable dgesv_example file should be compiled successfully
 (probably with a few inconsequential warnings).
+
+-------------------------------------------------------------
+
+Before using CLAPACK, the following documentations are must reads:
+http://www.netlib.org/clapack/readme
+
+Summary of readme:
+ 
+# a call that in Fortran would look like:
+#
+#    call dgetrf(...)
+#
+# becomes in C:
+#
+#    dgetrf_(...);
+#
+
+
+# All arguments are passed by reference, including scalar arguments.
+# If the matrix to
+# be factored is called A, the Fortran call
+#
+#    call dgetrf(5, 5, A, 5, ipiv, info)
+#
+# becomes in C:
+#
+#    M = N = LDA = 5;
+#    dgetrf_(&M, &N, A, &LDA, ipiv, &info);
+
+
+# We recommend using the following code to get the array CLAPACK will be 
+# expecting:
+#
+#    double *A;
+#    A = malloc( LDA*N*sizeof(double) );
+#
+# Note that for best memory utilization, you would set LDA=M, the
+# actual number of rows of A.  If you now wish to operate on the
+# matrix A, remember that A is in column-major order. 
