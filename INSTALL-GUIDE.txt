@@ -91,3 +91,19 @@ Summary of readme:
 # Note that for best memory utilization, you would set LDA=M, the
 # actual number of rows of A.  If you now wish to operate on the
 # matrix A, remember that A is in column-major order. 
+
+-------------------------------------------------------------
+
+General information that I've found useful:
+
+http://www.netlib.org/blas/faq.html
+The BLAS (Basic Linear Algebra Subprograms) are routines that provide 
+standard building blocks for performing basic vector and matrix operations.
+The Level 1 BLAS perform scalar, vector and vector-vector operations, the
+Level 2 BLAS perform matrix-vector operations, and the Level 3 BLAS perform
+matrix-matrix operations. Because the BLAS are efficient, portable, and 
+widely available, they are commonly used in the development of high quality 
+linear algebra software, LAPACK for example.
+
+BLAS functions:
+http://www.netlib.org/blas/index.html
