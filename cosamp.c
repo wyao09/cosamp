@@ -64,6 +64,7 @@
 
 */ 
 
+#include "blas.h"
 #include "f2c.h"
 #include <stdio.h>
 #include "clapack.h"
@@ -71,31 +72,27 @@
 #define MAX_ITER 10
 int i;
 
-// assigns positive size to vector v
-float norm(float* v){
-  
-
-}
-
 main(int argc, char **argv){
   /* given */
-  float *Phi; //measurement matrix
-  int vector_size;
-  float *u; //measured vector
-  float tol = 0.01; //tolerance for approximation between successive solutions. 
+  doublereal *Phi; //measurement matrix
+  integer vector_size;
+  doublereal *u; //measured vector
+  doublereal tol = 0.01; //tolerance for approx between successive solutions. 
   /* end given */
 
   //copy u to v
-  float *v = malloc(vector_size*sizeof(u));
+  doublereal *v = malloc(vector_size*sizeof(u));
   for(i=0;i<vector_size;i++){
     v[i] = u[i];
   }
   
   int t = 0;
+  integer incx = 1;
 
-  while((t < MAX_ITER) && (norm(v)/norm(u) > tol)){
-     
-
+  while((t < MAX_ITER) && 
+	(dnrm2_(&vector_size, v, &incx)/dnrm2_(&vector_size, u, &incx) > tol)){
+    
+    
       t++;
     }
   
