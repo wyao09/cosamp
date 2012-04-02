@@ -74,14 +74,16 @@ int i;
 
 main(int argc, char **argv){
   /* given */
-  doublereal *Phi; //measurement matrix
+  doublecomplex *Phi; //measurement matrix
+  integer m;
+  integer n; //aka vector_size?
+  doublecomplex *u; //measured vector
   integer vector_size;
-  doublereal *u; //measured vector
   doublereal tol = 0.01; //tolerance for approx between successive solutions. 
   /* end given */
 
   //copy u to v
-  doublereal *v = malloc(vector_size*sizeof(u));
+  doublecomplex *v = malloc(vector_size*sizeof(u));
   for(i=0;i<vector_size;i++){
     v[i] = u[i];
   }
@@ -90,13 +92,25 @@ main(int argc, char **argv){
   integer incx = 1; // increment (usually 1)
 
   while((t < MAX_ITER) && 
-	(dnrm2_(&vector_size, v, &incx)/dnrm2_(&vector_size, u, &incx) > tol)){
+	(dznrm2_(&vector_size, v, &incx)/
+	 dznrm2_(&vector_size, u, &incx) > tol)){
 
     // make a guess on nonzero locations
     y = abs(Phi* *v);
-    //use complex? cgemv.f
+
+    char trans = 'C';
+    complex alpha = 1;
+    complex beta = 0;
+    integer lda = 1;
+    doublecomplex *y = malloc(vector_size*sizeof(y));
+
+    // Phi* *v
+    zgemv_(&trans,&m,&vector_size,&alpha,v,&lda,Phi,&incx,&beta,y,&incx);
     
-      t++;
-    }
+    // y = abs(Phi* *v)
+    // may have to loop with dcabs1_(doublecomplex z)
+
+    t++;
+  }
   
 }     
