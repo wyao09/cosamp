@@ -63,8 +63,8 @@
    end
 
 */ 
-
-#include "blas.h"
+#include <stdlib.h>
+#include "blaswrap.h"
 #include "f2c.h"
 #include <stdio.h>
 #include "clapack.h"
@@ -74,16 +74,16 @@ int i;
 
 main(int argc, char **argv){
   /* given */
-  doublecomplex *Phi; //measurement matrix
+  doublereal *Phi; //measurement matrix
   integer m;
   integer n; //aka vector_size?
-  doublecomplex *u; //measured vector
+  doublereal *u; //measured vector
   integer vector_size;
   doublereal tol = 0.01; //tolerance for approx between successive solutions. 
   /* end given */
 
   //copy u to v
-  doublecomplex *v = malloc(vector_size*sizeof(u));
+  doublereal *v = malloc(vector_size*sizeof(u));
   for(i=0;i<vector_size;i++){
     v[i] = u[i];
   }
@@ -92,20 +92,20 @@ main(int argc, char **argv){
   integer incx = 1; // increment (usually 1)
 
   while((t < MAX_ITER) && 
-	(dznrm2_(&vector_size, v, &incx)/
-	 dznrm2_(&vector_size, u, &incx) > tol)){
+	(dnrm2_(&vector_size, v, &incx)/
+	 dnrm2_(&vector_size, u, &incx) > tol)){
 
-    // make a guess on nonzero locations
-    y = abs(Phi* *v);
+    
 
     char trans = 'C';
-    complex alpha = 1;
-    complex beta = 0;
+    doublereal alpha = 1;
+    doublereal beta = 0;
     integer lda = 1;
-    doublecomplex *y = malloc(vector_size*sizeof(y));
+    // does this actually need to be malloced? look at abs
+    doublereal *y = malloc(vector_size*sizeof(doublereal));
 
     // Phi* *v
-    zgemv_(&trans,&m,&vector_size,&alpha,v,&lda,Phi,&incx,&beta,y,&incx);
+    dgemv_(&trans,&m,&vector_size,&alpha,v,&lda,Phi,&incx,&beta,y,&incx);
     
     // y = abs(Phi* *v)
     // may have to loop with dcabs1_(doublecomplex z)
