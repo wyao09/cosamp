@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include "clapack.h"
 
-#define MAX_ITER 10
+#define MAX_ITER 100
 int i;
 
 int cmp (const void *a, const void *b){
@@ -20,9 +20,9 @@ int cmp (const void *a, const void *b){
 
 main(int argc, char **argv){
   /* given */
-  int k = 10;//sparsity
-  integer m = 3;
-  integer n = 3; //aka vector_size?
+  int k = 5;//sparsity
+  integer m = 9;
+  integer n = 9; //aka vector_size?
   doublereal Phi[m*n]; //measurement matrix
   integer vector_size = m;
   doublereal u[m]; //measured vector
@@ -30,10 +30,18 @@ main(int argc, char **argv){
   /* end given */
 
   // populate Phi and u
-  int temp[9] = {3,-2,0,0,3,1,3,-3,-4};
-  for(i=0;i<9;i++)
+  int temp[81] = {3,-2,0,0,3,1,3,-3,-4,
+		 3,-2,0,0,3,1,3,-3,-4,
+		 3,-2,0,0,3,1,3,-3,-4,
+		 3,-2,0,0,3,1,3,-3,-4,
+		 3,-2,0,0,3,1,3,-3,-4,
+		 3,-2,0,0,3,1,3,-3,-4,
+		 3,-2,0,0,3,1,3,-3,-4,
+		 3,-2,0,0,3,1,3,-3,-4,
+		 3,-2,0,0,3,1,3,-3,-4};
+  for(i=0;i<81;i++)
     Phi[i] = temp[i];
-  for(i=0;i<3;i++)
+  for(i=0;i<9;i++)
     u[i] = temp[i];
 
   doublereal *T = malloc(vector_size*sizeof(doublereal));
@@ -65,7 +73,7 @@ main(int argc, char **argv){
   while((t < MAX_ITER) && 
 	(dnrm2_(&vector_size, v, &incx)/
 	 dnrm2_(&vector_size, u, &incx) > tol)){
-    printf("hi\n");
+    printf("%d\n",t);
 
     // Phi* *v
     trans = 'C';
@@ -115,5 +123,7 @@ main(int argc, char **argv){
   }
 
   //print answer
+  for (i=0;i<9;i++)
+    printf("%d\n",v[i]);
   
 }     
