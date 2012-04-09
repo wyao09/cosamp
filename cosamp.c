@@ -21,8 +21,8 @@ int cmp (const void *a, const void *b){
 main(int argc, char **argv){
   /* given */
   int k = 10;//sparsity
-  integer m = 4;
-  integer n = 6; //aka vector_size?
+  integer m = 3;
+  integer n = 3; //aka vector_size?
   doublereal Phi[m*n]; //measurement matrix
   integer vector_size = m;
   doublereal u[m]; //measured vector
@@ -30,11 +30,11 @@ main(int argc, char **argv){
   /* end given */
 
   // populate Phi and u
-  
-
-
-
-
+  int temp[9] = {3,-2,0,0,3,1,3,-3,-4};
+  for(i=0;i<9;i++)
+    Phi[i] = temp[i];
+  for(i=0;i<3;i++)
+    u[i] = temp[i];
 
   doublereal *T = malloc(vector_size*sizeof(doublereal));
 
@@ -50,7 +50,7 @@ main(int argc, char **argv){
   char trans = 'C';
   doublereal alpha = 1;
   doublereal beta = 0;
-  integer lda = 1;
+  integer lda = m;//1;
   // does this actually need to be malloced? look at abs
   doublereal *y = malloc(vector_size*sizeof(doublereal));
 
@@ -65,6 +65,7 @@ main(int argc, char **argv){
   while((t < MAX_ITER) && 
 	(dnrm2_(&vector_size, v, &incx)/
 	 dnrm2_(&vector_size, u, &incx) > tol)){
+    printf("hi\n");
 
     // Phi* *v
     trans = 'C';
@@ -112,5 +113,7 @@ main(int argc, char **argv){
 
     t++;
   }
+
+  //print answer
   
 }     
