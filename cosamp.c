@@ -29,6 +29,13 @@ main(int argc, char **argv){
   doublereal tol = 0.01; //tolerance for approx between successive solns. 
   /* end given */
 
+  // populate Phi and u
+  
+
+
+
+
+
   doublereal *T = malloc(vector_size*sizeof(doublereal));
 
   //copy u to v
@@ -47,20 +54,21 @@ main(int argc, char **argv){
   // does this actually need to be malloced? look at abs
   doublereal *y = malloc(vector_size*sizeof(doublereal));
 
-
   integer info;
   integer nrhs = 1; // number of columns of matrices B and X in B = AX
-  doublereal *work = (double*)malloc( lwork*sizeof(doublereal) );
+  integer lwork = max(1,min(m,n) + max(min(m,n),nrhs));
+  doublereal *work = malloc( lwork*sizeof(doublereal));
   integer la = max(m,n);
   integer lb = m;
+  doublereal *x = malloc(k*sizeof(doublereal));
 
-  WHILE((t < MAX_ITER) && 
+  while((t < MAX_ITER) && 
 	(dnrm2_(&vector_size, v, &incx)/
 	 dnrm2_(&vector_size, u, &incx) > tol)){
 
     // Phi* *v
     trans = 'C';
-    dgemv_(&trans,&m,&vector_size,&alpha,v,&lda,Phi,&incx,&beta,y,&incx);
+    dgemv_(&trans,&m,&n,&alpha,v,&lda,Phi,&incx,&beta,y,&incx);
     
     // y = abs(Phi* *v)
     // may have to loop with dcabs1_(doublecomplex z)
@@ -82,13 +90,25 @@ main(int argc, char **argv){
     
     // reduce system size and solve for least square
     // ? = Phi y
+    // answer stored in T
     trans = 'N';
-    dgels_(&trans,&m,&n,&nrhs,Phi,la,T,lb,work,lork,&info);
+    dgels_(&trans,&m,&n,&nrhs,Phi,&la,T,&lb,work,&lwork,&info);
+ 
+    // abo(T) then sort T
+    for (i=0;i<3*k;i++){
+      if(T[i] < 0)
+	T[i] = -1 * T[i];
+    }
+    qsort(T, 3*k, sizeof(doublereal), cmp);
 
-    // pick top K components of b(aka T aka x_), "set" others to 0
+    //Ax_1
+    trans = 'N';
+    dgemv_(&trans,&m,&n,&alpha,v,&lda,Phi,&incx,&beta,x,&incx);
 
-    // compute residual
-    
+    //populate v / compute residual
+    for (i=0;i<k;i++){
+      v[i] = u[i] - x[i];
+    }
 
     t++;
   }
