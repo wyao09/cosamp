@@ -5,7 +5,17 @@
 #include "clapack.h"
 
 #define MAX_ITER 100
-int i;
+int i,j;
+
+void print_matrix(doublereal *p, int m, int n){
+  for(i=0;i<m;i++){
+    for(j=0;j<n;j++){
+      printf("%d ",(int)p[j+i*j]);
+    }
+    printf("\n");
+  }
+}
+
 
 int cmp (const void *a, const void *b){
   doublereal pa = *(const doublereal*) a;
@@ -21,8 +31,8 @@ int cmp (const void *a, const void *b){
 main(int argc, char **argv){
   /* given */
   int k = 5;//sparsity
-  integer m = 9;
-  integer n = 9; //aka vector_size?
+  integer m = 6;
+  integer n = 16; //aka vector_size?
   doublereal Phi[m*n]; //measurement matrix
   integer vector_size = m;
   doublereal u[m]; //measured vector
@@ -30,19 +40,30 @@ main(int argc, char **argv){
   /* end given */
 
   // populate Phi and u
-  int temp[81] = {3,-2,0,0,3,1,3,-3,-4,
-		 3,-2,0,0,3,1,3,-3,-4,
-		 3,-2,0,0,3,1,3,-3,-4,
-		 3,-2,0,0,3,1,3,-3,-4,
-		 3,-2,0,0,3,1,3,-3,-4,
-		 3,-2,0,0,3,1,3,-3,-4,
-		 3,-2,0,0,3,1,3,-3,-4,
-		 3,-2,0,0,3,1,3,-3,-4,
-		 3,-2,0,0,3,1,3,-3,-4};
-  for(i=0;i<81;i++)
-    Phi[i] = temp[i];
-  for(i=0;i<9;i++)
-    u[i] = temp[i];
+  int phi_sample[96] = {1,1,1,0,1,1,
+		  0,0,1,0,0,1,
+		  1,1,1,1,0,0,
+		  0,0,1,0,0,0,
+		  1,1,1,1,1,1,
+		  0,1,1,0,0,1,
+		  1,0,1,1,0,0,
+		  0,0,0,0,0,1,
+		  0,0,0,0,0,0,
+		  1,0,1,0,0,1,
+		  0,0,1,0,1,1,
+		  1,1,1,1,1,1,
+		  0,1,1,0,1,0,
+		  1,1,1,1,1,0,
+		  1,0,1,1,1,0,
+		  1,0,1,0,1,1};
+
+  for(i=0;i<64;i++)
+    Phi[i] = phi_sample[i];
+
+  int y_sample[6] = {0,0,23,0,0,0};
+
+  for(i=0;i<6;i++)
+    u[i] = y_sample[i];
 
   doublereal *T = malloc(vector_size*sizeof(doublereal));
 
@@ -69,6 +90,10 @@ main(int argc, char **argv){
   integer la = max(m,n);
   integer lb = m;
   doublereal *x = malloc(k*sizeof(doublereal));
+
+  //test print
+  print_matrix(Phi, 6, 16);
+  
 
   while((t < MAX_ITER) && 
 	(dnrm2_(&vector_size, v, &incx)/
@@ -121,9 +146,5 @@ main(int argc, char **argv){
 
     t++;
   }
-
-  //print answer
-  for (i=0;i<9;i++)
-    printf("%d\n",v[i]);
   
 }     
