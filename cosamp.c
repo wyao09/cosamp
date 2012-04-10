@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include "clapack.h"
 
-#define MAX_ITER 100
+#define MAX_ITER 10
 int i,j;
 
 void print_matrix(doublereal *p, int m, int n){
@@ -30,7 +30,7 @@ int cmp (const void *a, const void *b){
 
 main(int argc, char **argv){
   /* given */
-  int k = 5;//sparsity
+  int k = 2;//sparsity
   integer m = 6;
   integer n = 16; //aka vector_size?
   doublereal Phi[m*n]; //measurement matrix
@@ -60,7 +60,7 @@ main(int argc, char **argv){
   for(i=0;i<64;i++)
     Phi[i] = phi_sample[i];
 
-  int y_sample[6] = {0,0,23,0,0,0};
+  int y_sample[6] = {0,0,28,0,5,5};
 
   for(i=0;i<6;i++)
     u[i] = y_sample[i];
@@ -87,14 +87,11 @@ main(int argc, char **argv){
   integer nrhs = 1; // number of columns of matrices B and X in B = AX
   integer lwork = max(1,min(m,n) + max(min(m,n),nrhs));
   doublereal *work = malloc( lwork*sizeof(doublereal));
-  integer la = max(m,n);
-  integer lb = m;
+  integer la = m;
+  integer lb = max(m,n);
   doublereal *x = malloc(k*sizeof(doublereal));
-
-  //test print
-  print_matrix(Phi, 6, 16);
-  
-
+ 
+  // COSAMP Starts Here
   while((t < MAX_ITER) && 
 	(dnrm2_(&vector_size, v, &incx)/
 	 dnrm2_(&vector_size, u, &incx) > tol)){
