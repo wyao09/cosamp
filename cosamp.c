@@ -10,10 +10,11 @@ int i,j;
 void print_matrix(doublereal *p, int m, int n){
   for(i=0;i<m;i++){
     for(j=0;j<n;j++){
-      printf("%d ",(int)p[j+i*j]);
+      printf("%f ",(double)p[j+i*j]);
     }
     printf("\n");
   }
+  printf("\n");
 }
 
 
@@ -32,9 +33,8 @@ main(int argc, char **argv){
   /* given */
   int k = 2;//sparsity
   integer m = 6;
-  integer n = 16; //aka vector_size?
+  integer n = 16;
   doublereal Phi[m*n]; //measurement matrix
-  integer vector_size = m;
   doublereal u[m]; //measured vector
   doublereal tol = 0.01; //tolerance for approx between successive solns. 
   /* end given */
@@ -65,11 +65,11 @@ main(int argc, char **argv){
   for(i=0;i<6;i++)
     u[i] = y_sample[i];
 
-  doublereal *T = malloc(vector_size*sizeof(doublereal));
+  doublereal *T = malloc(3*n*sizeof(doublereal));// this should probably be 3k
 
   //copy u to v
-  doublereal *v = malloc(vector_size*sizeof(doublereal));
-  for(i=0;i<vector_size;i++){
+  doublereal *v = malloc(m*sizeof(doublereal));
+  for(i=0;i<m;i++){
     v[i] = u[i];
   }
   
@@ -81,7 +81,7 @@ main(int argc, char **argv){
   doublereal beta = 0;
   integer lda = m;//1;
   // does this actually need to be malloced? look at abs
-  doublereal *y = malloc(vector_size*sizeof(doublereal));
+  doublereal *y = malloc(n*sizeof(doublereal));
 
   integer info;
   integer nrhs = 1; // number of columns of matrices B and X in B = AX
@@ -93,23 +93,27 @@ main(int argc, char **argv){
  
   // COSAMP Starts Here
   while((t < MAX_ITER) && 
-	(dnrm2_(&vector_size, v, &incx)/
-	 dnrm2_(&vector_size, u, &incx) > tol)){
+	(dnrm2_(&m, v, &incx)/
+	 dnrm2_(&m, u, &incx) > tol)){
     printf("%d\n",t);
 
     // Phi* *v
     trans = 'C';
-    dgemv_(&trans,&m,&n,&alpha,v,&lda,Phi,&incx,&beta,y,&incx);
+    dgemv_(&trans,&m,&n,&alpha,Phi,&lda,v,&incx,&beta,y,&incx);
     
+    print_matrix(y,n,1);
+
     // y = abs(Phi* *v)
     // may have to loop with dcabs1_(doublecomplex z)
-    for (i=0;i<vector_size;i++){
+    for (i=0;i<n;i++){
       if(y[i] < 0)
 	y[i] = -1 * y[i];
     }
 
+
+
     // sort y
-    qsort(y, vector_size, sizeof(doublereal), cmp);
+    qsort(y, n, sizeof(doublereal), cmp);
     
     // merge top 2k with T (this can be a lot better)
     // may need to change to indicies
@@ -132,7 +136,7 @@ main(int argc, char **argv){
     }
     qsort(T, 3*k, sizeof(doublereal), cmp);
 
-    //Ax_1
+    //A*x_1
     trans = 'N';
     dgemv_(&trans,&m,&n,&alpha,v,&lda,Phi,&incx,&beta,x,&incx);
 
@@ -141,7 +145,8 @@ main(int argc, char **argv){
       v[i] = u[i] - x[i];
     }
 
+    //print_matrix(x,16,1);
+
     t++;
   }
-  
 }     
