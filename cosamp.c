@@ -35,11 +35,23 @@ int cmp_tuple (const void *a, const void *b){
   return 0;
 }
 
+/* SET Starts */
+
 //make bit array later/use better set implementation
 void reset(int *set, int n){
   for(i=0;i<n;i++)
     set[i] = 0;
 }
+
+int size(int *set, int n){
+  int k = 0;
+  for(i=0;i<n;i++)
+    if (set[i])
+      k++;
+  return k;
+}
+
+/* SET Ends */
 
 main(int argc, char **argv){
   /* given */
@@ -151,15 +163,16 @@ main(int argc, char **argv){
     
     print_matrix(Phi,m,n);
 
-    print_matrix(b,m,4);
-
-    /*
+    print_matrix(b,m,size(T,n));
 
     // reduce system size and solve for least square
     // ? = Phi y
-    // answer stored in T
+    // answer stored in u
     trans = 'N';
-    dgels_(&trans,&m,&n,&nrhs,Phi,&la,T,&lb,work,&lwork,&info);
+    integer ni = (integer) size(T,n);
+    dgels_(&trans,&m,&ni,&nrhs,b,&la,u,&lb,work,&lwork,&info);
+
+    /*
  
     // abo(T) then sort T
     for (i=0;i<3*k;i++){
