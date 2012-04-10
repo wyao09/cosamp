@@ -10,7 +10,7 @@ int i,j;
 void print_matrix(doublereal *p, int m, int n){
   for(i=0;i<m;i++){
     for(j=0;j<n;j++){
-      printf("%f ",(double)p[j+i*j]);
+      printf("%f ",(double)p[j+i*n]);
     }
     printf("\n");
   }
@@ -40,7 +40,7 @@ main(int argc, char **argv){
   /* end given */
 
   // populate Phi and u
-  int phi_sample[96] = {1,1,1,0,1,1,
+  double phi_sample[96] = {1,1,1,0,1,1,
 		  0,0,1,0,0,1,
 		  1,1,1,1,0,0,
 		  0,0,1,0,0,0,
@@ -57,12 +57,12 @@ main(int argc, char **argv){
 		  1,0,1,1,1,0,
 		  1,0,1,0,1,1};
 
-  for(i=0;i<64;i++)
+  for(i=0;i<m*n;i++)
     Phi[i] = phi_sample[i];
 
-  int y_sample[6] = {0,0,28,0,5,5};
+  double y_sample[6] = {0,0,28,0,5,5};
 
-  for(i=0;i<6;i++)
+  for(i=0;i<m;i++)
     u[i] = y_sample[i];
 
   doublereal *T = malloc(3*n*sizeof(doublereal));// this should probably be 3k
@@ -73,6 +73,8 @@ main(int argc, char **argv){
     v[i] = u[i];
   }
   
+  print_matrix(u,m,1);
+
   int t = 0;
   integer incx = 1; // increment (usually 1)
 
