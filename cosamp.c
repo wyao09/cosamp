@@ -30,7 +30,7 @@ int cmp_tuple (const void *a, const void *b){
   pa.value = pa.value - pb.value;
   if(pa.value == 0)
     return 0;
-  if(pa.value > 0)
+  if(pa.value < 0)
     return 1;
   return 0;
 }
@@ -88,7 +88,6 @@ main(int argc, char **argv){
 
   doublereal b[m*n];
 
-  
   int t = 0;
   integer incx = 1; // increment (usually 1)
 
@@ -128,14 +127,8 @@ main(int argc, char **argv){
       y[i].index = i;
     }
 
-    for(i=0;i<n;i++){
-      printf("%f %d\n",y[i].value, y[i].index);
-    }
-
     // sort y
-    qsort(y, n, sizeof(doublereal), cmp_tuple);
-
-
+    qsort(y, n, sizeof(tuple), cmp_tuple);
 
     // merge top 2k with T (this can be a lot better)
     // may need to change to indicies
