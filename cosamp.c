@@ -113,10 +113,10 @@ main(int argc, char **argv){
 
   integer info;
   integer nrhs = 1; // number of columns of matrices B and X in B = AX
-  integer lwork = m + n;// max(1,min(m,n) + max(min(m,n),nrhs));
+  integer lwork = max(1,min(m,n) + max(min(m,n),nrhs));
   doublereal *work = (doublereal*)  malloc( lwork*sizeof(doublereal));
   integer la = m;
-  integer lb = m;//max(m,n);
+  integer lb = max(m,n);
   doublereal *x = (doublereal*) malloc(k*sizeof(doublereal));
  
   // COSAMP Starts Here
