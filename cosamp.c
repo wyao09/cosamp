@@ -172,6 +172,8 @@ main(int argc, char **argv){
     integer ni = (integer) size(T,n);
     dgels_(&trans,&m,&ni,&nrhs,b,&la,u,&lb,work,&lwork,&info);
 
+    print_matrix(u,n,1);
+
     /*
  
     // abo(T) then sort T
