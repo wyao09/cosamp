@@ -5,7 +5,7 @@
 #include "clapack.h"
 
 #define MAX_ITER 1
-int i,j;
+int i,j,l;
 
 typedef struct{
   doublereal value;
@@ -23,8 +23,15 @@ void print_matrix(doublereal *p, int m, int n){
   printf("\n");
 }
 
+void print_tuple(tuple *t, int n){
+  printf("\n");
+  for(i=0;i<n;i++){
+    printf("%f %d\n", t[i].value, t[i].index);
+  }
+}
+
 //need to optimize this
-int cmp_tuple (const void *a, const void *b){
+int cmp (const void *a, const void *b){
   tuple pa = *(const tuple*) a;
   tuple pb = *(const tuple*) b;
   pa.value = pa.value - pb.value;
@@ -44,11 +51,11 @@ void reset(int *set, int n){
 }
 
 int size(int *set, int n){
-  int k = 0;
+  l = 0;
   for(i=0;i<n;i++)
     if (set[i])
-      k++;
-  return k;
+      l++;
+  return l;
 }
 
 /* SET Ends */
@@ -115,10 +122,7 @@ main(int argc, char **argv){
 
   integer info;
   integer nrhs = 1; // number of columns of matrices B and X in B = AX
-  integer lwork = max(1,min(m,n) + max(min(m,n),nrhs));
-  doublereal *work = (doublereal*)  malloc( lwork*sizeof(doublereal));
   integer la = m;
-  integer lb = mn;
   doublereal *x = (doublereal*) malloc(k*sizeof(doublereal));
  
   // COSAMP Starts Here
@@ -142,7 +146,7 @@ main(int argc, char **argv){
     }
 
     // sort y
-    qsort(y, n, sizeof(tuple), cmp_tuple);
+    qsort(y, n, sizeof(tuple), cmp);
 
     // merge top 2k with T (this can be a lot better)
     // may need to change to indicies
@@ -153,28 +157,35 @@ main(int argc, char **argv){
     printf("\n");
     
     //reduce Phi
-    int k = 0;
+    int l = 0;
     for(i=0;i<n;i++){
       for(j=0;j<m;j++){
 	if(T[i]){
-	  b[k] = Phi[i*m+j];
-	  k++;
+	  b[l] = Phi[i*m+j];
+	  l++;
 	}
       }
     }
-    
-    print_matrix(Phi,m,n);
 
-    print_matrix(b,m,size(T,n));
+    print_matrix(v,n,1);
 
     // reduce system size and solve for least square
     // ? = Phi y
     // answer stored in v
     trans = 'N';
     integer ni = (integer) size(T,n);
+    integer lb = (integer) max((int)ni,(int)m);
+    integer lwork = min(m,ni) + max(min(m,ni),nrhs);
+    doublereal *work = (doublereal*)  malloc( lwork*sizeof(doublereal));
+    printf("nrhs:%d,lda:%d,ldb:%d,lwork:%d \n",
+	   (int)nrhs,(int)la,(int)lb,(int)lwork);
+
+    //this is broken
     dgels_(&trans,&m,&ni,&nrhs,b,&la,v,&lb,work,&lwork,&info);
 
-    print_matrix(v,n,1);
+    free(work);
+
+    print_matrix(v,ni,1);
 
     //move abs(v) to b_tuple
     for(i=0;i<mn;i++){
@@ -187,8 +198,19 @@ main(int argc, char **argv){
 
     // include numbericalprecision?
  
-    // abo(b) then sort T
-    qsort(T, 3*k, sizeof(doublereal), cmp);
+    // abo(b) then sort T, swith between 2k and 3k or mn??
+    if(t==0)
+      qsort(b_tuple, 2*k, sizeof(doublereal), cmp);
+    else
+      qsort(b_tuple, 3*k, sizeof(doublereal), cmp);
+
+    //print_tuple(b_tuple, 2*k);
+    reset(T,n);
+
+    for(i=0;i<k;i++){
+      printf("%d\n",im);
+      T[b_tuple[i].index] = 1;
+    }
 
     /*
 
