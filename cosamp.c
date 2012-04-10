@@ -58,6 +58,7 @@ main(int argc, char **argv){
   int k = 2;//sparsity
   integer m = 6;
   integer n = 16;
+  int mn = max(m,n);//max of m,n
   doublereal Phi[m*n]; //measurement matrix
   doublereal u[m]; //measured vector
   doublereal tol = 0.01; //tolerance for approx between successive solns. 
@@ -92,8 +93,8 @@ main(int argc, char **argv){
   int T[(int)n]; //stores indicies
   reset(T,n);
 
-  //copy u to v
-  doublereal *v = (doublereal*) malloc(m*sizeof(doublereal));
+  //copy u to v; size of v is max(m,n) since it will store b later on
+  doublereal *v = (doublereal*) malloc(mn*sizeof(doublereal));
   for(i=0;i<m;i++){
     v[i] = u[i];
   }
@@ -110,13 +111,14 @@ main(int argc, char **argv){
   // need to keep original indicies
   tuple *y = (tuple*) malloc(n*sizeof(tuple));
   doublereal y_i[n];
+  tuple b_tuple[mn];
 
   integer info;
   integer nrhs = 1; // number of columns of matrices B and X in B = AX
   integer lwork = max(1,min(m,n) + max(min(m,n),nrhs));
   doublereal *work = (doublereal*)  malloc( lwork*sizeof(doublereal));
   integer la = m;
-  integer lb = max(m,n);
+  integer lb = mn;
   doublereal *x = (doublereal*) malloc(k*sizeof(doublereal));
  
   // COSAMP Starts Here
@@ -167,21 +169,28 @@ main(int argc, char **argv){
 
     // reduce system size and solve for least square
     // ? = Phi y
-    // answer stored in u
+    // answer stored in v
     trans = 'N';
     integer ni = (integer) size(T,n);
-    dgels_(&trans,&m,&ni,&nrhs,b,&la,u,&lb,work,&lwork,&info);
+    dgels_(&trans,&m,&ni,&nrhs,b,&la,v,&lb,work,&lwork,&info);
 
-    print_matrix(u,n,1);
+    print_matrix(v,n,1);
+
+    //move abs(v) to b_tuple
+    for(i=0;i<mn;i++){
+      if(v[i] < 0)
+	b_tuple[i].value = -1*v[i];
+      else
+	b_tuple[i].value = v[i];
+      b_tuple[i].index = i;
+    }
+
+    // include numbericalprecision?
+ 
+    // abo(b) then sort T
+    qsort(T, 3*k, sizeof(doublereal), cmp);
 
     /*
- 
-    // abo(T) then sort T
-    for (i=0;i<3*k;i++){
-      if(T[i] < 0)
-	T[i] = -1 * T[i];
-    }
-    qsort(T, 3*k, sizeof(doublereal), cmp);
 
     //A*x_1
     trans = 'N';
