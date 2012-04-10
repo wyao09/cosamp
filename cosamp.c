@@ -138,17 +138,20 @@ main(int argc, char **argv){
     }
     printf("\n");
     
+    //reduce Phi
     int k = 0;
     for(i=0;i<n;i++){
       for(j=0;j<m;j++){
-	if(T[j]){
-	  b[k] = Phi[i*n+j];
+	if(T[i]){
+	  b[k] = Phi[i*m+j];
 	  k++;
 	}
       }
     }
+    
+    print_matrix(Phi,m,n);
 
-    //print_matrix(b,m,4);
+    print_matrix(b,m,4);
 
     /*
 
