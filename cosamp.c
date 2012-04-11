@@ -100,13 +100,15 @@ main(int argc, char **argv){
   int T[(int)n]; //stores indicies
   reset(T,n);
 
-  //copy u to v; size of v is max(m,n) since it will store b later on
+  //copy u to v and w; size of v is max(m,n) since it will store b later on
   doublereal *v = (doublereal*) malloc(mn*sizeof(doublereal));
+  doublereal *w = (doublereal*) malloc(mn*sizeof(doublereal));
   for(i=0;i<m;i++){
     v[i] = u[i];
   }
 
   doublereal b[m*n];
+  doublereal b_reduced[m*n];
 
   int t = 0;
   integer incx = 1; // increment (usually 1)
@@ -167,8 +169,6 @@ main(int argc, char **argv){
       }
     }
 
-    print_matrix(v,m,1);
-
     // reduce system size and solve for least square
     // ? = Phi y
     // answer stored in v, which is a problem since we want to multiply by u each time
@@ -177,41 +177,63 @@ main(int argc, char **argv){
     integer lb = (integer) max((int)ni,(int)m);
     integer lwork = min(m,ni) + max(min(m,ni),nrhs);
     doublereal *work = (doublereal*)  malloc( lwork*sizeof(doublereal));
-    printf("nrhs:%d,m:%d,n:%dlda:%d,ldb:%d,lwork:%d \n\n",
-	   (int)nrhs,(int)m,(int)ni,(int)la,(int)lb,(int)lwork);
 
-    //this is broken
-    dgels_(&trans,&m,&ni,&nrhs,b,&la,v,&lb,work,&lwork,&info);
+    //make copy of u
+    for(i=0;i<m;i++){
+      w[i] = u[i];
+    }
+
+    dgels_(&trans,&m,&ni,&nrhs,b,&la,w,&lb,work,&lwork,&info);
 
     free(work);
 
-    printf("\n info: %d\n\n", (int)info);
+    if((int)info!=0){
+      printf("matrix has illegal value or does not have full rank\n");
+      return 1;
+    }
 
-    print_matrix(v,ni,1);
+    print_matrix(w,ni,1);
 
-    //move abs(v) to b_tuple
+    //move abs(w) to b_tuple
     for(i=0;i<mn;i++){
-      if(v[i] < 0)
-	b_tuple[i].value = -1*v[i];
+      if(w[i] < 0)
+	b_tuple[i].value = -1*w[i];
       else
-	b_tuple[i].value = v[i];
+	b_tuple[i].value = w[i];
       b_tuple[i].index = i;
     }
+
+    print_tuple(b_tuple, 2*k);
 
     // include numbericalprecision?
  
     // abo(b) then sort T, swith between 2k and 3k or mn??
     if(t==0)
-      qsort(b_tuple, 2*k, sizeof(doublereal), cmp);
+      qsort(b_tuple, 2*k, sizeof(tuple), cmp);
     else
-      qsort(b_tuple, 3*k, sizeof(doublereal), cmp);
+      qsort(b_tuple, 3*k, sizeof(tuple), cmp);
 
-    //print_tuple(b_tuple, 2*k);
+    print_tuple(b_tuple, 2*k);
+    
     reset(T,n);
 
     for(i=0;i<k;i++){
-      printf("%d\n",i);
       T[b_tuple[i].index] = 1;
+    }
+
+
+    //reduce b
+    
+
+    //reduce Phi
+    int l = 0;
+    for(i=0;i<n;i++){
+      for(j=0;j<m;j++){
+	if(T[i]){
+	  b[l] = Phi[i*m+j];
+	  l++;
+	}
+      }
     }
 
     /*
