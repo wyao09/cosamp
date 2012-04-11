@@ -83,7 +83,7 @@ main(int argc, char **argv){
 		  0,0,0,0,0,0,
 		  1,0,1,0,0,1,
 		  0,0,1,0,1,1,
-		  1,1,1,1,1,1,
+		  1,1,1,1,1,0,
 		  0,1,1,0,1,0,
 		  1,1,1,1,1,0,
 		  1,0,1,1,1,0,
@@ -167,23 +167,25 @@ main(int argc, char **argv){
       }
     }
 
-    print_matrix(v,n,1);
+    print_matrix(v,m,1);
 
     // reduce system size and solve for least square
     // ? = Phi y
-    // answer stored in v
+    // answer stored in v, which is a problem since we want to multiply by u each time
     trans = 'N';
     integer ni = (integer) size(T,n);
     integer lb = (integer) max((int)ni,(int)m);
     integer lwork = min(m,ni) + max(min(m,ni),nrhs);
     doublereal *work = (doublereal*)  malloc( lwork*sizeof(doublereal));
-    printf("nrhs:%d,lda:%d,ldb:%d,lwork:%d \n",
-	   (int)nrhs,(int)la,(int)lb,(int)lwork);
+    printf("nrhs:%d,m:%d,n:%dlda:%d,ldb:%d,lwork:%d \n\n",
+	   (int)nrhs,(int)m,(int)ni,(int)la,(int)lb,(int)lwork);
 
     //this is broken
     dgels_(&trans,&m,&ni,&nrhs,b,&la,v,&lb,work,&lwork,&info);
 
     free(work);
+
+    printf("\n info: %d\n\n", (int)info);
 
     print_matrix(v,ni,1);
 
@@ -208,7 +210,7 @@ main(int argc, char **argv){
     reset(T,n);
 
     for(i=0;i<k;i++){
-      printf("%d\n",im);
+      printf("%d\n",i);
       T[b_tuple[i].index] = 1;
     }
 
