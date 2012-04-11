@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include "clapack.h"
 
-#define MAX_ITER 1
+#define MAX_ITER 10
 int i,j,l;
 
 typedef struct{
@@ -197,36 +197,39 @@ main(int argc, char **argv){
     //move abs(w) to b_tuple
     for(i=0;i<mn;i++){
       if(w[i] < 0)
-	b_tuple[i].value = -1*w[i];
-      else
-	b_tuple[i].value = w[i];
+	w[i] = -1*w[i];
+      b_tuple[i].value = w[i];
       b_tuple[i].index = i;
     }
 
-    print_tuple(b_tuple, 2*k);
-
     // include numbericalprecision?
  
-    // abo(b) then sort T, swith between 2k and 3k or mn??
+    // abo(b) then sort T, swith between 2k and 3k? probably best to find size every time
     if(t==0)
       qsort(b_tuple, 2*k, sizeof(tuple), cmp);
     else
       qsort(b_tuple, 3*k, sizeof(tuple), cmp);
-
-    print_tuple(b_tuple, 2*k);
     
     reset(T,n);
 
+    // this needs to be fixed
     for(i=0;i<k;i++){
       T[b_tuple[i].index] = 1;
     }
-
-
-    //reduce b
     
+    print_matrix(w,4,1);
+
+    //reduce b (aka w) should it be n or just 4?
+    l=0;
+    for(i=0;i<n;i++){
+      if(T[i]){
+	printf("T include: %d\n",i);
+	b_reduced[l] = w[i];
+	l++;
+      }
+    }
 
     //reduce Phi
-    int l = 0;
     for(i=0;i<n;i++){
       for(j=0;j<m;j++){
 	if(T[i]){
@@ -236,19 +239,21 @@ main(int argc, char **argv){
       }
     }
 
-    /*
-
-    //A*x_1
     trans = 'N';
-    dgemv_(&trans,&m,&n,&alpha,v,&lda,Phi,&incx,&beta,x,&incx);
+    ni = (integer) size(T,n);
+
+    print_matrix(b_reduced,k,1);
+
+    dgemv_(&trans,&m,&ni,&alpha,b,&lda,b_reduced,&incx,&beta,x,&incx);
+
+    print_matrix(b_reduced,m,1);
 
     //populate v / compute residual
-    for (i=0;i<k;i++){
-      v[i] = u[i] - x[i];
+    for (i=0;i<m;i++){
+      v[i] = u[i] - b_reduced[i];
     }
 
-    */
-    //print_matrix(x,16,1);
+    print_matrix(v,m,1);
 
     t++;
   }
