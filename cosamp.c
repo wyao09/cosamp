@@ -98,7 +98,9 @@ main(int argc, char **argv){
     u[i] = y_sample[i];
 
   int T[(int)n]; //stores indicies
+  int Ti[(int)n]; //stores indicies of indicies
   reset(T,n);
+  reset(Ti,n);
 
   //copy u to v and w; size of v is max(m,n) since it will store b later on
   doublereal *v = (doublereal*) malloc(mn*sizeof(doublereal));
@@ -151,11 +153,18 @@ main(int argc, char **argv){
     // sort y
     qsort(y, n, sizeof(tuple), cmp);
 
+    //
+    double val = y[2*k-1].value;
+
     // merge top 2k with T (this can be a lot better)
     // may need to change to indicies
-    for(i=0;i<2*k;i++){
-      T[y[i].index] = 1;
-      printf("%d ",y[i].index);
+    for(i=0;i<n;i++){
+      if(y[i].value >= val){
+	T[y[i].index] = 1;
+	printf("%d ",y[i].index);
+      }
+      else
+	break;
     }
     printf("\n\n");
     
@@ -170,7 +179,6 @@ main(int argc, char **argv){
 	}
       }
     }
-
 
     // reduce system size and solve for least square
     // ? = Phi y
@@ -206,22 +214,34 @@ main(int argc, char **argv){
     // include numbericalprecision?
  
     // abo(b) then sort T, swith between 2k and 3k? probably best to find size every time
-    if(t==0)
-      qsort(b_tuple, 2*k, sizeof(tuple), cmp);
-    else
-      qsort(b_tuple, 3*k, sizeof(tuple), cmp);
+    qsort(b_tuple, size(T,n), sizeof(tuple), cmp);
     
-    reset(T,n);
+    //instead of resetting, need to create a new Ti for this and use original Phi
+    reset(Ti,n);
+
+    val = b_tuple[k-1].value;
 
     // this needs to be fixed
-    for(i=0;i<k;i++){
-      T[b_tuple[i].index] = 1;
+    for(i=0;i<mn;i++){
+      if(b_tuple[i].value >= val){
+	Ti[b_tuple[i].index] = 1;
+      }
+      else
+	break;
+    }
+    l = 0;
+    for(i=0;i<n;i++){
+      if(T[i]){
+	if(!Ti[l])
+	  T[i] = 0;
+	l++;
+      }
     }
     
     //reduce b (aka w)
     l=0;
     for(i=0;i<n;i++){
-      if(T[i]){
+      if(Ti[i]){
 	b_reduced[l] = w[i];
 	l++;
       }
@@ -229,10 +249,10 @@ main(int argc, char **argv){
 
     doublereal Phi_reduced2[sizeof(doublereal)*m*size(T,n)];
 
-    //reduce Phi
+    //reduce Phi (could be done using T)
     l= 0;
     for(i=0;i<ni;i++){ //or is it n?
-      if(T[i]){
+      if(Ti[i]){
 	for(j=0;j<m;j++){
 	  Phi_reduced2[l] = Phi_reduced[i*m+j];
 	  l++;
@@ -240,8 +260,11 @@ main(int argc, char **argv){
       }
     }
 
+    print_matrix(Phi_reduced2,m,2);
+    print_matrix(b_reduced,2,1);
+
     trans = 'N';
-    ni = (integer)k; //aka k
+    ni = size(T,n);
     dgemv_(&trans,&m,&ni,&alpha,Phi_reduced2,&lda,b_reduced,&incx,&beta,y_i,&incx);
 
     //populate v / compute residual
@@ -249,6 +272,9 @@ main(int argc, char **argv){
       v[i] = u[i] - y_i[i];
     }
 
+    for(i=0;i<n;i++)
+      if(T[i])
+	printf("T:%d\n",i);
     print_matrix(v,m,1);
 
     t++;
