@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include "clapack.h"
 
-#define MAX_ITER 10
+#define MAX_ITER 1
 int i,j,l;
 
 typedef struct{
@@ -15,18 +15,30 @@ typedef struct{
 
 void loadComplexMatrixFromFile(double *buffer, int m, int n, char *filename){
   int filesize = m*n;
+  double tmp[filesize*2];
 
   FILE *f;
   int r;
   
   f = fopen(filename, "rb");
   if (f){
-    r = fread(buffer, filesize*sizeof(double), 1, f);
+    /*
+    i= 0;
+    for (r = fread(&buffer[i++], sizeof(double), 1, f);
+	 i < filesize && !feof(f);
+	 r = fread(&buffer[i++], sizeof(double), 1, f)){
+      
+    }
+    */
+    r = fread(tmp, filesize*sizeof(double)*2, 1, f);
   }
   // error opening file
   else{
     printf("ERROR: read failed\n");
     exit(2);
+  }
+  for(r=0;r<filesize;r++){
+    buffer[r] = tmp[r*2];
   }
 }
 
@@ -81,16 +93,18 @@ int size(int *set, int n){
 
 main(int argc, char **argv){
   
-  if(argc !=4 && argc !=5){
+  if(argc !=4 && argc !=6){
     printf("%d\n",argc);
-    printf("usage: cosamp [sparsity] [m] [n] [filename]\n");
+    printf("usage: cosamp [sparsity] [m] [n] [Phi filename] [y filename]\n");
     return 1;
   }
 
-  if(argc == 5){
+  char Phi_file[64];
+  char y_file[64];
+  if(argc == 6){
     //file io
-    char filename[64];
-    strcpy(filename, argv[4]);
+    strcpy(Phi_file, argv[4]);
+    strcpy(y_file,argv[5]);
   }
 
   /* given */
@@ -104,7 +118,10 @@ main(int argc, char **argv){
   /* end given */
   
   // populate Phi and u
-  double phi_sample[96] = 
+  double *phi_sample = malloc(sizeof(double)*(int)m*(int)n);
+  loadComplexMatrixFromFile(phi_sample, (int)m, (int)n, Phi_file);
+
+  //  double phi_sample[96] =
   /*  {
       0,1,1,1,1,0,
       1,0,1,1,0,1,
@@ -124,7 +141,7 @@ main(int argc, char **argv){
       1,1,1,1,0,0
       };
 
-  */
+  
     {1,1,1,0,1,1,
      0,0,1,0,0,1,
      1,1,1,1,0,0,
@@ -141,12 +158,16 @@ main(int argc, char **argv){
      1,1,1,1,1,0,
      1,0,1,1,1,0,
      1,0,1,0,1,1};
-    
+  */
 
   for(i=0;i<m*n;i++)
     Phi[i] = phi_sample[i];
 
-  double y_sample[6] = {14,14,14,14,3,0};
+  print_matrix(phi_sample,m,n);
+
+  // double y_sample[6] = {14,14,14,14,3,0};
+  double *y_sample = malloc(sizeof(double)*(int)m);
+  loadComplexMatrixFromFile(y_sample, (int)m, 1, y_file);
 
   for(i=0;i<m;i++)
     u[i] = y_sample[i];
