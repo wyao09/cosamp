@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 #include "blaswrap.h"
 #include "f2c.h"
 #include <stdio.h>
@@ -61,18 +62,47 @@ int size(int *set, int n){
 /* SET Ends */
 
 main(int argc, char **argv){
+  if(argc !=4 || argc !=5){
+    printf("usage: cosamp [sparsity] [m] [n] [filename]\n");
+    return 1;
+  }
   /* given */
-  int k = 2;//sparsity
-  integer m = 6;
-  integer n = 16;
+  int k = atoi(argv[1]);//sparsity
+  integer m = atoi(argv[2]);
+  integer n = atoi(argv[3]);
   int mn = max(m,n);//max of m,n
   doublereal Phi[m*n]; //measurement matrix
   doublereal u[m]; //measured vector
   doublereal tol = 0.01; //tolerance for approx between successive solns. 
   /* end given */
 
+  //file io
+  char filename[64];
+  strcpy(filename, argv[4]);
+  
   // populate Phi and u
-  double phi_sample[96] = {1,1,1,0,1,1,
+  double phi_sample[96] = 
+  /*  {
+      0,1,1,1,1,0,
+      1,0,1,1,0,1,
+      0,1,0,0,0,0,
+      1,0,0,0,0,0,
+      1,1,0,0,0,0,
+      0,1,0,0,1,1,
+      0,1,0,0,1,1,
+      1,0,0,1,0,0,
+      1,0,1,0,0,0,
+      0,1,1,0,0,0,
+      0,1,0,1,1,1,
+      0,0,1,0,0,1,
+      1,0,0,0,1,1,
+      0,1,1,0,1,0,
+      1,1,0,0,1,1,
+      1,1,1,1,0,0
+    };
+
+  */
+    {1,1,1,0,1,1,
 		  0,0,1,0,0,1,
 		  1,1,1,1,0,0,
 		  0,0,1,0,0,0,
@@ -83,16 +113,17 @@ main(int argc, char **argv){
 		  0,0,0,0,0,0,
 		  1,0,1,0,0,1,
 		  0,0,1,0,1,1,
-		  1,1,1,1,1,0,
+		  0,1,1,1,1,0,
 		  0,1,1,0,1,0,
 		  1,1,1,1,1,0,
 		  1,0,1,1,1,0,
 		  1,0,1,0,1,1};
+    
 
   for(i=0;i<m*n;i++)
     Phi[i] = phi_sample[i];
 
-  double y_sample[6] = {0,0,28,0,5,5};
+  double y_sample[6] = {14,14,14,14,3,0};
 
   for(i=0;i<m;i++)
     u[i] = y_sample[i];
@@ -267,7 +298,6 @@ main(int argc, char **argv){
       v[i] = u[i] - y_i[i];
     }
 
-
     printf("recovered x:\n");
     l=0;
     for(i=0;i<n;i++){
@@ -281,7 +311,6 @@ main(int argc, char **argv){
 	printf(" 0\n");      
     }
 
-
     t++;
   }
-}     
+}
