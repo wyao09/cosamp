@@ -6,6 +6,13 @@
 #include "clapack.h"
 
 #define MAX_ITER 10
+
+/* Todo: - get complex version to work
+ *       - fix load
+ *       - organize arguments
+ */
+
+/* Globals */
 int i,j,l;
 
 typedef struct{
@@ -13,90 +20,14 @@ typedef struct{
   int index;
 } tuple;
 
-void loadComplexMatrixFromFile(double *buffer, int m, int n, char *filename){
-  int filesize = m*n;
-  double tmp[filesize*2];
-
-  FILE *f;
-  int r;
-  
-  f = fopen(filename, "rb");
-  if (f){
-    /*
-      i= 0;
-      for (r = fread(&buffer[i++], sizeof(double), 1, f);
-      i < filesize && !feof(f);
-      r = fread(&buffer[i++], sizeof(double), 1, f)){
-      
-      }
-    */
-    r = fread(tmp, filesize*sizeof(double)*2, 1, f);
-  }
-  // error opening file
-  else{
-    printf("ERROR: read failed\n");
-    exit(2);
-  }
-  for(r=0;r<filesize;r++){
-    buffer[r] = tmp[r*2];
-  }
-}
-
-
-// converts from column major order
-void print_matrix(doublereal *p, int m, int n){
-  for(i=0;i<m;i++){
-    for(j=0;j<n;j++){
-      printf("%f ",(double)p[i+j*m]);
-    }
-    printf("\n");
-  }
-  printf("\n");
-}
-
-void print_t(int *T, int n){
-  for(i=0;i<n;i++){
-    if(T[i])
-      printf("T:%d\n",i+1);
-  }
-}
-
-void print_tuple(tuple *t, int n){
-  printf("\n");
-  for(i=0;i<n;i++){
-    printf("%f %d\n", t[i].value, t[i].index);
-  }
-}
-
-//need to optimize this
-int cmp (const void *a, const void *b){
-  tuple pa = *(const tuple*) a;
-  tuple pb = *(const tuple*) b;
-  pa.value = pa.value - pb.value;
-  if(pa.value == 0)
-    return 0;
-  if(pa.value < 0)
-    return 1;
-  return 0;
-}
-
-/* SET Starts */
-
-//make bit array later/use better set implementation
-void reset(int *set, int n){
-  for(i=0;i<n;i++)
-    set[i] = 0;
-}
-
-int size(int *set, int n){
-  l = 0;
-  for(i=0;i<n;i++)
-    if (set[i])
-      l++;
-  return l;
-}
-
-/* SET Ends */
+/* Functions */
+void loadComplexMatrixFromFile(double *buffer, int m, int n, char *filename);
+void print_matrix(doublereal *p, int m, int n);
+void print_t(int *T, int n);
+void print_tuple(tuple *t, int n);
+int cmp (const void *a, const void *b);
+void reset(int *set, int n);
+int size(int *set, int n);
 
 main(int argc, char **argv){
   
@@ -127,45 +58,6 @@ main(int argc, char **argv){
   // populate Phi and u
   double *phi_sample = malloc(sizeof(double)*(int)m*(int)n);
   loadComplexMatrixFromFile(phi_sample, (int)m, (int)n, Phi_file);
-
-  //  double phi_sample[96] =
-  /*  {
-      0,1,1,1,1,0,
-      1,0,1,1,0,1,
-      0,1,0,0,0,0,
-      1,0,0,0,0,0,
-      1,1,0,0,0,0,
-      0,1,0,0,1,1,
-      0,1,0,0,1,1,
-      1,0,0,1,0,0,
-      1,0,1,0,0,0,
-      0,1,1,0,0,0,
-      0,1,0,1,1,1,
-      0,0,1,0,0,1,
-      1,0,0,0,1,1,
-      0,1,1,0,1,0,
-      1,1,0,0,1,1,
-      1,1,1,1,0,0
-      };
-
-  
-      {1,1,1,0,1,1,
-      0,0,1,0,0,1,
-      1,1,1,1,0,0,
-      0,0,1,0,0,0,
-      1,1,1,1,1,1,
-      0,1,1,0,0,1,
-      1,0,1,1,0,0,
-      0,0,0,0,0,1,
-      0,0,0,0,0,0,
-      1,0,1,0,0,1,
-      0,0,1,0,1,1,
-      0,1,1,1,1,0,
-      0,1,1,0,1,0,
-      1,1,1,1,1,0,
-      1,0,1,1,1,0,
-      1,0,1,0,1,1};
-  */
 
   for(i=0;i<m*n;i++)
     Phi[i] = phi_sample[i];
@@ -363,4 +255,80 @@ main(int argc, char **argv){
     else
       printf(" 0\n");      
   }
+}
+
+/* Function Implementations */
+
+void loadComplexMatrixFromFile(double *buffer, int m, int n, char *filename){
+  int filesize = m*n;
+  double tmp[filesize*2];
+  FILE *f;
+  int r;
+
+  f = fopen(filename, "rb");
+  if (f){
+    r = fread(tmp, filesize*sizeof(double)*2, 1, f);
+  }
+  // Error opening file
+  else{
+    printf("ERROR: read failed\n");
+    exit(2);
+  }
+  // Copy real portion to buffer
+  for(r=0;r<filesize;r++){
+    buffer[r] = tmp[r*2];
+  }
+}
+
+// Prints matrix in row major order (stored in column major)
+void print_matrix(doublereal *p, int m, int n){
+  for(i=0;i<m;i++){
+    for(j=0;j<n;j++){
+      printf("%f ",(double)p[i+j*m]);
+    }
+    printf("\n");
+  }
+  printf("\n");
+}
+
+void print_t(int *T, int n){
+  for(i=0;i<n;i++){
+    if(T[i])
+      printf("T:%d\n",i+1);
+  }
+}
+
+void print_tuple(tuple *t, int n){
+  printf("\n");
+  for(i=0;i<n;i++){
+    printf("%f %d\n", t[i].value, t[i].index);
+  }
+}
+
+//need to optimize this
+int cmp (const void *a, const void *b){
+  tuple pa = *(const tuple*) a;
+  tuple pb = *(const tuple*) b;
+  pa.value = pa.value - pb.value;
+  if(pa.value == 0)
+    return 0;
+  if(pa.value < 0)
+    return 1;
+  return 0;
+}
+
+/* SET Functions */
+
+//make bit array later/use better set implementation
+void reset(int *set, int n){
+  for(i=0;i<n;i++)
+    set[i] = 0;
+}
+
+int size(int *set, int n){
+  l = 0;
+  for(i=0;i<n;i++)
+    if (set[i])
+      l++;
+  return l;
 }
