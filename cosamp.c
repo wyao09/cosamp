@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include "clapack.h"
 
-#define MAX_ITER 10
+#define MAX_ITER 1
 int i,j,l;
 
 typedef struct{
@@ -108,6 +108,7 @@ main(int argc, char **argv){
   }
 
   doublereal b[m*n];
+  doublereal Phi_reduced[m*n];
   doublereal b_reduced[m*n];
 
   int t = 0;
@@ -156,7 +157,7 @@ main(int argc, char **argv){
       T[y[i].index] = 1;
       printf("%d ",y[i].index);
     }
-    printf("\n");
+    printf("\n\n");
     
     //reduce Phi
     int l = 0;
@@ -164,10 +165,12 @@ main(int argc, char **argv){
       for(j=0;j<m;j++){
 	if(T[i]){
 	  b[l] = Phi[i*m+j];
+	  Phi_reduced[l] = Phi[i*m+j];
 	  l++;
 	}
       }
     }
+
 
     // reduce system size and solve for least square
     // ? = Phi y
@@ -192,8 +195,6 @@ main(int argc, char **argv){
       return 1;
     }
 
-    print_matrix(w,ni,1);
-
     //move abs(w) to b_tuple
     for(i=0;i<mn;i++){
       if(w[i] < 0)
@@ -217,40 +218,40 @@ main(int argc, char **argv){
       T[b_tuple[i].index] = 1;
     }
     
-    print_matrix(w,4,1);
-
     //reduce b (aka w) should it be n or just 4?
     l=0;
     for(i=0;i<n;i++){
       if(T[i]){
-	printf("T include: %d\n",i);
 	b_reduced[l] = w[i];
 	l++;
       }
     }
 
+    doublereal Phi_reduced2[sizeof(doublereal)*m*size(T,n)];
+
     //reduce Phi
-    for(i=0;i<n;i++){
-      for(j=0;j<m;j++){
-	if(T[i]){
-	  b[l] = Phi[i*m+j];
+    l= 0;
+    for(i=0;i<ni;i++){ //or is it n?
+      if(T[i]){
+	for(j=0;j<m;j++){
+	  Phi_reduced2[l] = Phi_reduced[i*m+j];
 	  l++;
 	}
       }
     }
 
+    print_matrix(Phi_reduced2,m,2);
+    print_matrix(b_reduced,2,1);
+
     trans = 'N';
-    ni = (integer) size(T,n);
+    ni = (integer)k; //aka k
+    dgemv_(&trans,&m,&ni,&alpha,Phi_reduced2,&lda,b_reduced,&incx,&beta,y_i,&incx);
 
-    print_matrix(b_reduced,k,1);
-
-    dgemv_(&trans,&m,&ni,&alpha,b,&lda,b_reduced,&incx,&beta,x,&incx);
-
-    print_matrix(b_reduced,m,1);
+    print_matrix(y_i,m,1);
 
     //populate v / compute residual
     for (i=0;i<m;i++){
-      v[i] = u[i] - b_reduced[i];
+      v[i] = u[i] - y_i[i];
     }
 
     print_matrix(v,m,1);
