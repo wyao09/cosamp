@@ -29,14 +29,17 @@ int cmp (const void *a, const void *b);
 void reset(int *set, int n);
 int size(int *set, int n);
 
+/*
+  y = Phi * x
+  given y and Phi, we want to solve for x
+ */
+
 main(int argc, char **argv){
-  
   if(argc !=4 && argc !=6){
     printf("%d\n",argc);
     printf("usage: cosamp [sparsity] [m] [n] [Phi filename] [y filename]\n");
     return 1;
   }
-
   char Phi_file[64];
   char y_file[64];
   if(argc == 6){
@@ -49,36 +52,28 @@ main(int argc, char **argv){
   int k = atoi(argv[1]);//sparsity
   integer m = atoi(argv[2]);
   integer n = atoi(argv[3]);
-  int mn = max(m,n);//max of m,n
   doublereal Phi[m*n]; //measurement matrix
-  doublereal u[m]; //measured vector
-  doublereal tol = 0.01; //tolerance for approx between successive solns. 
-  /* end given */
-  
-  // populate Phi and u
-  double *phi_sample = malloc(sizeof(double)*(int)m*(int)n);
-  loadComplexMatrixFromFile(phi_sample, (int)m, (int)n, Phi_file);
+  doublereal y[m]; //measured vector
 
-  for(i=0;i<m*n;i++)
-    Phi[i] = phi_sample[i];
-
-  // double y_sample[6] = {14,14,14,14,3,0};
-  double *y_sample = malloc(sizeof(double)*(int)m);
-  loadComplexMatrixFromFile(y_sample, (int)m, 1, y_file);
-
-  for(i=0;i<m;i++)
-    u[i] = y_sample[i];
-
+  /* auxiliary */
+  int mn = max(m,n);
   int T[(int)n]; //stores indicies
   int Ti[(int)n]; //stores indicies of indicies
+ 
+  /* constants */
+  doublereal tol = 0.01; //tolerance for approx between successive solns. 
+  
+  // populate Phi and y from file and reset indicies
+  loadComplexMatrixFromFile(Phi, m, n, Phi_file);
+  loadComplexMatrixFromFile(y, m, 1, y_file);
   reset(T,n);
   reset(Ti,n);
 
-  //copy u to v and w; size of v is max(m,n) since it will store b later on
+  //copy y to v and w; size of v is max(m,n) since it will store b later on
   doublereal *v = (doublereal*) malloc(mn*sizeof(doublereal));
   doublereal *w = (doublereal*) malloc(mn*sizeof(doublereal));
   for(i=0;i<m;i++){
-    v[i] = u[i];
+    v[i] = y[i];
   }
 
   doublereal b[m*n];
@@ -93,7 +88,7 @@ main(int argc, char **argv){
   doublereal beta = 0;
   integer lda = m;//1;
   // need to keep original indicies
-  tuple *y = (tuple*) malloc(n*sizeof(tuple));
+  tuple *y_t = (tuple*) malloc(n*sizeof(tuple));
   doublereal y_i[n];
   tuple b_tuple[mn];
 
@@ -105,7 +100,7 @@ main(int argc, char **argv){
   // COSAMP Starts Here
   while((t < MAX_ITER) && 
 	(dnrm2_(&m, v, &incx)/
-	 dnrm2_(&m, u, &incx) > tol)){
+	 dnrm2_(&m, y, &incx) > tol)){
     printf("%d\n",t);
 
     // Phi* *v
@@ -116,23 +111,23 @@ main(int argc, char **argv){
     // may have to loop with dcabs1_(doublecomplex z)
     for (i=0;i<n;i++){
       if(y_i[i] < 0)
-	y[i].value = -1 * y_i[i];
+	y_t[i].value = -1 * y_i[i];
       else
-	y[i].value = y_i[i];
-      y[i].index = i;
+	y_t[i].value = y_i[i];
+      y_t[i].index = i;
     }
 
-    // sort y
-    qsort(y, n, sizeof(tuple), cmp);
+    // sort y_t
+    qsort(y_t, n, sizeof(tuple), cmp);
 
     //
-    double val = y[2*k-1].value;
+    double val = y_t[2*k-1].value;
 
     // merge top 2k with T (this can be a lot better)
     // may need to change to indicies
     for(i=0;i<n;i++){
-      if(y[i].value >= val){
-	T[y[i].index] = 1;
+      if(y_t[i].value >= val){
+	T[y_t[i].index] = 1;
       }
       else
 	break;
@@ -159,9 +154,9 @@ main(int argc, char **argv){
     integer lwork = min(m,ni) + max(min(m,ni),nrhs);
     doublereal *work = (doublereal*)  malloc( lwork*sizeof(doublereal));
 
-    //make copy of u
+    //make copy of y
     for(i=0;i<m;i++){
-      w[i] = u[i];
+      w[i] = y[i];
     }
 
     dgels_(&trans,&m,&ni,&nrhs,b,&la,w,&lb,work,&lwork,&info);
@@ -237,7 +232,7 @@ main(int argc, char **argv){
 
     //populate v / compute residual
     for (i=0;i<m;i++){
-      v[i] = u[i] - y_i[i];
+      v[i] = y[i] - y_i[i];
     }
 
     t++;
