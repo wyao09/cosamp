@@ -13,6 +13,24 @@ typedef struct{
   int index;
 } tuple;
 
+void loadComplexMatrixFromFile(double *buffer, int m, int n, char *filename){
+  int filesize = m*n;
+
+  FILE *f;
+  int r;
+  
+  f = fopen(filename, "rb");
+  if (f){
+    r = fread(buffer, filesize*sizeof(double), 1, f);
+  }
+  // error opening file
+  else{
+    printf("ERROR: read failed\n");
+    exit(2);
+  }
+}
+
+
 // converts from column major order
 void print_matrix(doublereal *p, int m, int n){
   for(i=0;i<m;i++){
@@ -62,10 +80,19 @@ int size(int *set, int n){
 /* SET Ends */
 
 main(int argc, char **argv){
-  if(argc !=4 || argc !=5){
+  
+  if(argc !=4 && argc !=5){
+    printf("%d\n",argc);
     printf("usage: cosamp [sparsity] [m] [n] [filename]\n");
     return 1;
   }
+
+  if(argc == 5){
+    //file io
+    char filename[64];
+    strcpy(filename, argv[4]);
+  }
+
   /* given */
   int k = atoi(argv[1]);//sparsity
   integer m = atoi(argv[2]);
@@ -75,10 +102,6 @@ main(int argc, char **argv){
   doublereal u[m]; //measured vector
   doublereal tol = 0.01; //tolerance for approx between successive solns. 
   /* end given */
-
-  //file io
-  char filename[64];
-  strcpy(filename, argv[4]);
   
   // populate Phi and u
   double phi_sample[96] = 
@@ -99,25 +122,25 @@ main(int argc, char **argv){
       0,1,1,0,1,0,
       1,1,0,0,1,1,
       1,1,1,1,0,0
-    };
+      };
 
   */
     {1,1,1,0,1,1,
-		  0,0,1,0,0,1,
-		  1,1,1,1,0,0,
-		  0,0,1,0,0,0,
-		  1,1,1,1,1,1,
-		  0,1,1,0,0,1,
-		  1,0,1,1,0,0,
-		  0,0,0,0,0,1,
-		  0,0,0,0,0,0,
-		  1,0,1,0,0,1,
-		  0,0,1,0,1,1,
-		  0,1,1,1,1,0,
-		  0,1,1,0,1,0,
-		  1,1,1,1,1,0,
-		  1,0,1,1,1,0,
-		  1,0,1,0,1,1};
+     0,0,1,0,0,1,
+     1,1,1,1,0,0,
+     0,0,1,0,0,0,
+     1,1,1,1,1,1,
+     0,1,1,0,0,1,
+     1,0,1,1,0,0,
+     0,0,0,0,0,1,
+     0,0,0,0,0,0,
+     1,0,1,0,0,1,
+     0,0,1,0,1,1,
+     0,1,1,1,1,0,
+     0,1,1,0,1,0,
+     1,1,1,1,1,0,
+     1,0,1,1,1,0,
+     1,0,1,0,1,1};
     
 
   for(i=0;i<m*n;i++)
