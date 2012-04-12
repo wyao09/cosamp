@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include "clapack.h"
 
-#define MAX_ITER 1
+#define MAX_ITER 10
 int i,j,l;
 
 typedef struct{
@@ -218,7 +218,7 @@ main(int argc, char **argv){
       T[b_tuple[i].index] = 1;
     }
     
-    //reduce b (aka w) should it be n or just 4?
+    //reduce b (aka w)
     l=0;
     for(i=0;i<n;i++){
       if(T[i]){
@@ -240,14 +240,9 @@ main(int argc, char **argv){
       }
     }
 
-    print_matrix(Phi_reduced2,m,2);
-    print_matrix(b_reduced,2,1);
-
     trans = 'N';
     ni = (integer)k; //aka k
     dgemv_(&trans,&m,&ni,&alpha,Phi_reduced2,&lda,b_reduced,&incx,&beta,y_i,&incx);
-
-    print_matrix(y_i,m,1);
 
     //populate v / compute residual
     for (i=0;i<m;i++){
