@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include "clapack.h"
 
-#define MAX_ITER 1
+#define MAX_ITER 10
 int i,j,l;
 
 typedef struct{
@@ -23,12 +23,12 @@ void loadComplexMatrixFromFile(double *buffer, int m, int n, char *filename){
   f = fopen(filename, "rb");
   if (f){
     /*
-    i= 0;
-    for (r = fread(&buffer[i++], sizeof(double), 1, f);
-	 i < filesize && !feof(f);
-	 r = fread(&buffer[i++], sizeof(double), 1, f)){
+      i= 0;
+      for (r = fread(&buffer[i++], sizeof(double), 1, f);
+      i < filesize && !feof(f);
+      r = fread(&buffer[i++], sizeof(double), 1, f)){
       
-    }
+      }
     */
     r = fread(tmp, filesize*sizeof(double)*2, 1, f);
   }
@@ -52,6 +52,13 @@ void print_matrix(doublereal *p, int m, int n){
     printf("\n");
   }
   printf("\n");
+}
+
+void print_t(int *T, int n){
+  for(i=0;i<n;i++){
+    if(T[i])
+      printf("T:%d\n",i+1);
+  }
 }
 
 void print_tuple(tuple *t, int n){
@@ -142,28 +149,26 @@ main(int argc, char **argv){
       };
 
   
-    {1,1,1,0,1,1,
-     0,0,1,0,0,1,
-     1,1,1,1,0,0,
-     0,0,1,0,0,0,
-     1,1,1,1,1,1,
-     0,1,1,0,0,1,
-     1,0,1,1,0,0,
-     0,0,0,0,0,1,
-     0,0,0,0,0,0,
-     1,0,1,0,0,1,
-     0,0,1,0,1,1,
-     0,1,1,1,1,0,
-     0,1,1,0,1,0,
-     1,1,1,1,1,0,
-     1,0,1,1,1,0,
-     1,0,1,0,1,1};
+      {1,1,1,0,1,1,
+      0,0,1,0,0,1,
+      1,1,1,1,0,0,
+      0,0,1,0,0,0,
+      1,1,1,1,1,1,
+      0,1,1,0,0,1,
+      1,0,1,1,0,0,
+      0,0,0,0,0,1,
+      0,0,0,0,0,0,
+      1,0,1,0,0,1,
+      0,0,1,0,1,1,
+      0,1,1,1,1,0,
+      0,1,1,0,1,0,
+      1,1,1,1,1,0,
+      1,0,1,1,1,0,
+      1,0,1,0,1,1};
   */
 
   for(i=0;i<m*n;i++)
     Phi[i] = phi_sample[i];
-
-  print_matrix(phi_sample,m,n);
 
   // double y_sample[6] = {14,14,14,14,3,0};
   double *y_sample = malloc(sizeof(double)*(int)m);
@@ -279,8 +284,9 @@ main(int argc, char **argv){
     //move abs(w) to b_tuple
     for(i=0;i<mn;i++){
       if(w[i] < 0)
-	w[i] = -1*w[i];
-      b_tuple[i].value = w[i];
+	b_tuple[i].value = -1*w[i];
+      else
+	b_tuple[i].value = w[i];
       b_tuple[i].index = i;
     }
 
@@ -342,19 +348,19 @@ main(int argc, char **argv){
       v[i] = u[i] - y_i[i];
     }
 
-    printf("recovered x:\n");
-    l=0;
-    for(i=0;i<n;i++){
-      if(T[i]){
-	while(!Ti[l])
-	  l++;
-	printf(" %f\n",w[l]);
-	l++;
-      }
-      else
-	printf(" 0\n");      
-    }
-
     t++;
+  }
+
+  printf("recovered x:\n");
+  l=0;
+  for(i=0;i<n;i++){
+    if(T[i]){
+      while(!Ti[l])
+	l++;
+      printf(" %f\n",w[l]);
+      l++;
+    }
+    else
+      printf(" 0\n");      
   }
 }
