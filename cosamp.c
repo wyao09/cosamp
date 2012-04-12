@@ -161,12 +161,10 @@ main(int argc, char **argv){
     for(i=0;i<n;i++){
       if(y[i].value >= val){
 	T[y[i].index] = 1;
-	printf("%d ",y[i].index);
       }
       else
 	break;
     }
-    printf("\n\n");
     
     //reduce Phi
     int l = 0;
@@ -260,9 +258,6 @@ main(int argc, char **argv){
       }
     }
 
-    print_matrix(Phi_reduced2,m,2);
-    print_matrix(b_reduced,2,1);
-
     trans = 'N';
     ni = size(T,n);
     dgemv_(&trans,&m,&ni,&alpha,Phi_reduced2,&lda,b_reduced,&incx,&beta,y_i,&incx);
@@ -272,10 +267,20 @@ main(int argc, char **argv){
       v[i] = u[i] - y_i[i];
     }
 
-    for(i=0;i<n;i++)
-      if(T[i])
-	printf("T:%d\n",i);
-    print_matrix(v,m,1);
+
+    printf("recovered x:\n");
+    l=0;
+    for(i=0;i<n;i++){
+      if(T[i]){
+	while(!Ti[l])
+	  l++;
+	printf(" %f\n",w[l]);
+	l++;
+      }
+      else
+	printf(" 0\n");      
+    }
+
 
     t++;
   }
