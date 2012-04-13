@@ -49,6 +49,7 @@ main(int argc, char **argv){
   }
 
   /* given */
+  int iter = 0;
   int k = atoi(argv[1]);//sparsity
   integer m = atoi(argv[2]);
   integer n = atoi(argv[3]);
@@ -59,7 +60,18 @@ main(int argc, char **argv){
   int mn = max(m,n);
   int T[(int)n]; //stores indicies
   int Ti[(int)n]; //stores indicies of indicies
+  doublereal v[n]; //working copy of y
+  doublereal w[mn]; //working copy of y;  replaced during least square
+  // get rid of one of these
+  doublereal Phi_reduced1[m*n];
+  doublereal Phi_reduced2[m*n];
+  doublereal b_reduced[m*n];
  
+  integer incx = 1;
+  char trans = 'C';
+  doublereal alpha = 1;
+  doublereal beta = 0;
+
   /* constants */
   doublereal tol = 0.01; //tolerance for approx between successive solns. 
   
@@ -69,23 +81,11 @@ main(int argc, char **argv){
   reset(T,n);
   reset(Ti,n);
 
-  //copy y to v and w; size of v is max(m,n) since it will store b later on
-  doublereal *v = (doublereal*) malloc(mn*sizeof(doublereal));
-  doublereal *w = (doublereal*) malloc(mn*sizeof(doublereal));
+  // copy y to v
   for(i=0;i<m;i++){
     v[i] = y[i];
   }
-
-  doublereal b[m*n];
-  doublereal Phi_reduced[m*n];
-  doublereal b_reduced[m*n];
-
-  int t = 0;
-  integer incx = 1; // increment (usually 1)
-
-  char trans = 'C';
-  doublereal alpha = 1;
-  doublereal beta = 0;
+  
   integer lda = m;//1;
   // need to keep original indicies
   tuple *y_t = (tuple*) malloc(n*sizeof(tuple));
@@ -98,11 +98,7 @@ main(int argc, char **argv){
   doublereal *x = (doublereal*) malloc(k*sizeof(doublereal));
  
   // COSAMP Starts Here
-  while((t < MAX_ITER) && 
-	(dnrm2_(&m, v, &incx)/
-	 dnrm2_(&m, y, &incx) > tol)){
-    printf("%d\n",t);
-
+  while((iter < MAX_ITER) && (dnrm2_(&m,v,&incx)/dnrm2_(&m,y,&incx) > tol)){
     // Phi* *v
     trans = 'C';
     dgemv_(&trans,&m,&n,&alpha,Phi,&lda,v,&incx,&beta,y_i,&incx);
@@ -138,8 +134,8 @@ main(int argc, char **argv){
     for(i=0;i<n;i++){
       for(j=0;j<m;j++){
 	if(T[i]){
-	  b[l] = Phi[i*m+j];
-	  Phi_reduced[l] = Phi[i*m+j];
+	  Phi_reduced1[l] = Phi[i*m+j];
+	  Phi_reduced2[l] = Phi[i*m+j];
 	  l++;
 	}
       }
@@ -154,12 +150,12 @@ main(int argc, char **argv){
     integer lwork = min(m,ni) + max(min(m,ni),nrhs);
     doublereal *work = (doublereal*)  malloc( lwork*sizeof(doublereal));
 
-    //make copy of y
+    //make copy of y since w will be replaced
     for(i=0;i<m;i++){
       w[i] = y[i];
     }
 
-    dgels_(&trans,&m,&ni,&nrhs,b,&la,w,&lb,work,&lwork,&info);
+    dgels_(&trans,&m,&ni,&nrhs,Phi_reduced1,&la,w,&lb,work,&lwork,&info);
 
     free(work);
 
@@ -213,14 +209,12 @@ main(int argc, char **argv){
       }
     }
 
-    doublereal Phi_reduced2[sizeof(doublereal)*m*size(T,n)];
-
     //reduce Phi (could be done using T)
     l= 0;
     for(i=0;i<ni;i++){ //or is it n?
       if(Ti[i]){
 	for(j=0;j<m;j++){
-	  Phi_reduced2[l] = Phi_reduced[i*m+j];
+	  Phi_reduced1[l] = Phi_reduced2[i*m+j];
 	  l++;
 	}
       }
@@ -228,14 +222,14 @@ main(int argc, char **argv){
 
     trans = 'N';
     ni = size(T,n);
-    dgemv_(&trans,&m,&ni,&alpha,Phi_reduced2,&lda,b_reduced,&incx,&beta,y_i,&incx);
+    dgemv_(&trans,&m,&ni,&alpha,Phi_reduced1,&lda,b_reduced,&incx,&beta,y_i,&incx);
 
     //populate v / compute residual
     for (i=0;i<m;i++){
       v[i] = y[i] - y_i[i];
     }
 
-    t++;
+    iter++;
   }
 
   printf("recovered x:\n");
