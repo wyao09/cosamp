@@ -32,7 +32,7 @@ int size(int *set, int n);
 /*
   y = Phi * x
   given y and Phi, we want to solve for x
- */
+*/
 
 main(int argc, char **argv){
   if(argc !=4 && argc !=6){
@@ -66,11 +66,21 @@ main(int argc, char **argv){
   doublereal Phi_reduced1[m*n];
   doublereal Phi_reduced2[m*n];
   doublereal b_reduced[m*n];
- 
-  integer incx = 1;
+  tuple guess_t[n];
+  doublereal guess[n];
+  tuple b_tuple[mn];
+  doublereal x[k];
+  //  doublereal *work = (doublereal*)  malloc( lwork*sizeof(doublereal));
+
+  integer one = 1;
   char trans = 'C';
   doublereal alpha = 1;
   doublereal beta = 0;
+  integer info;
+  double val;
+  integer ni;
+  integer lba;
+  integer lwork;
 
   /* constants */
   doublereal tol = 0.01; //tolerance for approx between successive solns. 
@@ -85,52 +95,39 @@ main(int argc, char **argv){
   for(i=0;i<m;i++){
     v[i] = y[i];
   }
-  
-  integer lda = m;//1;
-  // need to keep original indicies
-  tuple *y_t = (tuple*) malloc(n*sizeof(tuple));
-  doublereal y_i[n];
-  tuple b_tuple[mn];
-
-  integer info;
-  integer nrhs = 1; // number of columns of matrices B and X in B = AX
-  integer la = m;
-  doublereal *x = (doublereal*) malloc(k*sizeof(doublereal));
  
   // COSAMP Starts Here
-  while((iter < MAX_ITER) && (dnrm2_(&m,v,&incx)/dnrm2_(&m,y,&incx) > tol)){
+  while((iter < MAX_ITER) && (dnrm2_(&m,v,&one)/dnrm2_(&m,y,&one) > tol)){
     // Phi* *v
     trans = 'C';
-    dgemv_(&trans,&m,&n,&alpha,Phi,&lda,v,&incx,&beta,y_i,&incx);
+    dgemv_(&trans,&m,&n,&alpha,Phi,&m,v,&one,&beta,guess,&one);
 
     // y = abs(Phi* *v) and add index
     // may have to loop with dcabs1_(doublecomplex z)
     for (i=0;i<n;i++){
-      if(y_i[i] < 0)
-	y_t[i].value = -1 * y_i[i];
+      if(guess[i] < 0)
+	guess_t[i].value = -1 * guess[i];
       else
-	y_t[i].value = y_i[i];
-      y_t[i].index = i;
+	guess_t[i].value = guess[i];
+      guess_t[i].index = i;
     }
 
-    // sort y_t
-    qsort(y_t, n, sizeof(tuple), cmp);
-
-    //
-    double val = y_t[2*k-1].value;
+    // sort guess_t
+    qsort(guess_t, n, sizeof(tuple), cmp);
 
     // merge top 2k with T (this can be a lot better)
     // may need to change to indicies
+    val = guess_t[2*k-1].value;
     for(i=0;i<n;i++){
-      if(y_t[i].value >= val){
-	T[y_t[i].index] = 1;
+      if(guess_t[i].value >= val){
+	T[guess_t[i].index] = 1;
       }
       else
 	break;
     }
     
     //reduce Phi
-    int l = 0;
+    l = 0;
     for(i=0;i<n;i++){
       for(j=0;j<m;j++){
 	if(T[i]){
@@ -141,13 +138,11 @@ main(int argc, char **argv){
       }
     }
 
-    // reduce system size and solve for least square
-    // ? = Phi y
-    // answer stored in v, which is a problem since we want to multiply by u each time
+    // reduce system size and solve for least square, store answer in w
     trans = 'N';
-    integer ni = (integer) size(T,n);
-    integer lb = (integer) max((int)ni,(int)m);
-    integer lwork = min(m,ni) + max(min(m,ni),nrhs);
+    ni = size(T,n);
+    lba = max(ni,m);
+    lwork = min(m,ni) + max(min(m,ni),one);
     doublereal *work = (doublereal*)  malloc( lwork*sizeof(doublereal));
 
     //make copy of y since w will be replaced
@@ -155,7 +150,7 @@ main(int argc, char **argv){
       w[i] = y[i];
     }
 
-    dgels_(&trans,&m,&ni,&nrhs,Phi_reduced1,&la,w,&lb,work,&lwork,&info);
+    dgels_(&trans,&m,&ni,&one,Phi_reduced1,&m,w,&lba,work,&lwork,&info);
 
     free(work);
 
@@ -222,13 +217,12 @@ main(int argc, char **argv){
 
     trans = 'N';
     ni = size(T,n);
-    dgemv_(&trans,&m,&ni,&alpha,Phi_reduced1,&lda,b_reduced,&incx,&beta,y_i,&incx);
+    dgemv_(&trans,&m,&ni,&alpha,Phi_reduced1,&m,b_reduced,&one,&beta,guess,&one);
 
     //populate v / compute residual
     for (i=0;i<m;i++){
-      v[i] = y[i] - y_i[i];
+      v[i] = y[i] - guess[i];
     }
-
     iter++;
   }
 
