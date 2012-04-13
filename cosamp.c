@@ -4,6 +4,8 @@
 #include "f2c.h"
 #include <stdio.h>
 #include "clapack.h"
+#include <sys/time.h>
+#include <sys/resource.h>
 
 #define MAX_ITER 10
 
@@ -28,10 +30,12 @@ void print_tuple(tuple *t, int n);
 int cmp (const void *a, const void *b);
 void reset(int *set, int n);
 int size(int *set, int n);
+double get_time();
 
 /*
   y = Phi * x
   given y and Phi, we want to solve for x
+  3 15 40
 */
 
 main(int argc, char **argv){
@@ -47,6 +51,9 @@ main(int argc, char **argv){
     strcpy(Phi_file, argv[4]);
     strcpy(y_file,argv[5]);
   }
+
+  /* start timer */
+  double start = get_time();
 
   /* given */
   int iter = 0;
@@ -69,8 +76,7 @@ main(int argc, char **argv){
   doublereal x[k];
   tuple guess_t[n];
   tuple b_tuple[mn];
-
-  //  doublereal *work = (doublereal*)  malloc( lwork*sizeof(doublereal));
+  doublereal work[m+n];
 
   integer one = 1;
   char trans = 'C';
@@ -143,7 +149,6 @@ main(int argc, char **argv){
     ni = size(T,n);
     lba = max(ni,m);
     lwork = min(m,ni) + max(min(m,ni),one);
-    doublereal *work = (doublereal*)  malloc( lwork*sizeof(doublereal));
 
     //make copy of y since w will be replaced
     for(i=0;i<m;i++){
@@ -151,8 +156,6 @@ main(int argc, char **argv){
     }
 
     dgels_(&trans,&m,&ni,&one,Phi_reduced1,&m,w,&lba,work,&lwork,&info);
-
-    free(work);
 
     if((int)info!=0){
       printf("matrix has illegal value or does not have full rank\n");
@@ -170,10 +173,10 @@ main(int argc, char **argv){
 
     // include numbericalprecision?
  
-    // abo(b) then sort T, swith between 2k and 3k? probably best to find size every time
+    // abo(b) then sort T
     qsort(b_tuple, size(T,n), sizeof(tuple), cmp);
     
-    //instead of resetting, need to create a new Ti for this and use original Phi
+    //create a new Ti for storing indicies of indicies
     reset(Ti,n);
 
     val = b_tuple[k-1].value;
@@ -215,7 +218,8 @@ main(int argc, char **argv){
 
     trans = 'N';
     ni = size(T,n);
-    dgemv_(&trans,&m,&ni,&alpha,Phi_reduced1,&m,b_reduced,&one,&beta,guess,&one);
+    dgemv_(&trans,&m,&ni,&alpha,Phi_reduced1,&m,
+	   b_reduced,&one,&beta,guess,&one);
 
     //populate v / compute residual
     for (i=0;i<m;i++){
@@ -236,6 +240,9 @@ main(int argc, char **argv){
     else
       printf(" 0\n");      
   }
+  /* end timer */
+  double end = get_time();
+  printf("\nBenchmark: %f sec, %d iterations\n",end-start,iter);
 }
 
 /* Function Implementations */
@@ -296,6 +303,14 @@ int cmp (const void *a, const void *b){
   if(pa.value < 0)
     return 1;
   return 0;
+}
+
+double get_time()
+{
+    struct timeval t;
+    struct timezone tzp;
+    gettimeofday(&t, &tzp);
+    return t.tv_sec + t.tv_usec*1e-6;
 }
 
 /* SET Functions */
