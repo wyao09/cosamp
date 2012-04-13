@@ -178,11 +178,9 @@ main(int argc, char **argv){
 
     val = b_tuple[k-1].value;
 
-    // this needs to be fixed
     for(i=0;i<mn;i++){
-      if(b_tuple[i].value >= val){
+      if(b_tuple[i].value >= val)
 	Ti[b_tuple[i].index] = 1;
-      }
       else
 	break;
     }
@@ -206,7 +204,7 @@ main(int argc, char **argv){
 
     //reduce Phi (could be done using T)
     l= 0;
-    for(i=0;i<ni;i++){ //or is it n?
+    for(i=0;i<ni;i++){
       if(Ti[i]){
 	for(j=0;j<m;j++){
 	  Phi_reduced1[l] = Phi_reduced2[i*m+j];
