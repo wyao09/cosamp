@@ -58,18 +58,18 @@ main(int argc, char **argv){
 
   /* auxiliary */
   int mn = max(m,n);
-  int T[(int)n]; //stores indicies
-  int Ti[(int)n]; //stores indicies of indicies
+  int T[n]; //stores indicies
+  int Ti[n]; //stores indicies of indicies
   doublereal v[n]; //working copy of y
   doublereal w[mn]; //working copy of y;  replaced during least square
-  // get rid of one of these
   doublereal Phi_reduced1[m*n];
   doublereal Phi_reduced2[m*n];
-  doublereal b_reduced[m*n];
-  tuple guess_t[n];
+  doublereal b_reduced[m*n];//get rid of this one?
   doublereal guess[n];
-  tuple b_tuple[mn];
   doublereal x[k];
+  tuple guess_t[n];
+  tuple b_tuple[mn];
+
   //  doublereal *work = (doublereal*)  malloc( lwork*sizeof(doublereal));
 
   integer one = 1;
