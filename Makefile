@@ -8,7 +8,7 @@ LDLIBS  = $(ROOTPATH)/lapack_LINUX.a \
 	  $(F2CDIR)/libf2c.a -lm
 
 cosamp: cosamp.o
-	$(CC) cosamp.o $(LDLIBS) -o cosamp
+	$(CC) cosamp.o $(LDLIBS) -O3 -o cosamp
 
 cosamp.o: cosamp.c
 	$(CC) cosamp.c $(INCDIRS) -c
