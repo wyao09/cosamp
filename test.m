@@ -9,7 +9,7 @@
 % Phi(Phi < 0.5) = -1;
 % Phi = Phi/sqrt(100);
 
-K=4;
+K=4s;
 
 Phi = read_complex_binary('A.dat');
 Phi = reshape(Phi,15,50);
@@ -31,7 +31,7 @@ maxiterations = 10;
 %       Sest: Solution found by the algorithm
 %
 % Algorithm as described in "CoSaMP: Iterative signal recovery from 
-% incomplete and inaccurate samples" by Deanna Needell and Joel Tropp.
+% incomplete and inaccurate sampless" by Deanna Needell and Joel Tropp.
 % 
 
 Sest = zeros(size(Phi,2),1);
