@@ -9,7 +9,7 @@
 % Phi(Phi < 0.5) = -1;
 % Phi = Phi/sqrt(100);
 
-K=4s;
+K=6;
 
 Phi = read_complex_binary('A.dat');
 Phi = reshape(Phi,15,50);

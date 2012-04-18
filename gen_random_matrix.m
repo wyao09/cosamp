@@ -3,9 +3,9 @@
 %%% SYMBOLS
 
 clear;
-m = 10;
-n = 30;
-k = 5;
+m = 150;
+n = 600;
+k = 15;
 
 %% y = A x
 A = rand(m,n);
