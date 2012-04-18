@@ -17,6 +17,27 @@
 /* Globals */
 int i,j,l;
 
+//timer
+double timer_start1[10];
+double timer_end1[10];
+double timer_start2[10];
+double timer_end2[10];
+double timer_start3[10];
+double timer_end3[10];
+double timer_start4[10];
+double timer_end4[10];
+double timer_start5[10];
+double timer_end5[10];
+double timer_start6[10];
+double timer_end6[10];
+double timer_start7[10];
+double timer_end7[10];
+double timer_start8[10];
+double timer_end8[10];
+double timer_start9[10];
+double timer_end9[10];
+
+
 typedef struct{
   doublereal value;
   int index;
@@ -31,6 +52,41 @@ int cmp (const void *a, const void *b);
 void reset(int *set, int n);
 int size(int *set, int n);
 double get_time();
+
+
+typedef struct forest_node_simple_t {
+    void* value;
+    struct forest_node_simple_t* parent;
+} forest_node_simple;
+
+forest_node_simple* FindSimple(forest_node_simple* node) {
+    while (node->parent != NULL) {
+        node = node->parent;
+    }
+    return node;
+}
+
+int SizeSimple(forest_node_simple* node){
+  int n = 1;
+   while (node->parent != NULL) {
+     node = node->parent;
+     n++;
+   }
+   return n;
+}
+
+void UnionSimple(forest_node_simple* node1, forest_node_simple* node2) {
+    node2->parent = node1; /* or node1->parent = node2; */
+    // need to loop through and check for duplicate
+}
+
+forest_node_simple* MakeSetSimple(void* value) {
+    forest_node_simple* node = malloc(sizeof(forest_node_simple));
+    node->value = value;
+    node->parent = NULL;
+    return node;
+}
+
 
 /*
   y = Phi * x
@@ -51,9 +107,6 @@ main(int argc, char **argv){
     strcpy(Phi_file, argv[4]);
     strcpy(y_file,argv[5]);
   }
-
-  /* start timer */
-  double start = get_time();
 
   /* given */
   int iter = 0;
@@ -90,9 +143,10 @@ main(int argc, char **argv){
 
   /* constants */
   doublereal tol = 0.01; //tolerance for approx between successive solns. 
-  
+
   // populate Phi and y from file and reset indicies
   loadComplexMatrixFromFile(Phi, m, n, Phi_file);
+  printf("hit here\n");
   loadComplexMatrixFromFile(y, m, 1, y_file);
   reset(T,n);
   reset(Ti,n);
@@ -102,9 +156,12 @@ main(int argc, char **argv){
     v[i] = y[i];
   }
  
+  /* start timer */
+  double start = get_time();
+
   // COSAMP Starts Here
   while((iter < MAX_ITER) && (dnrm2_(&m,v,&one)/dnrm2_(&m,y,&one) > tol)){
-    // Phi* *v
+    timer_start1[iter] = get_time();
     trans = 'C';
     dgemv_(&trans,&m,&n,&alpha,Phi,&m,v,&one,&beta,guess,&one);
 
@@ -117,10 +174,12 @@ main(int argc, char **argv){
 	guess_t[i].value = guess[i];
       guess_t[i].index = i;
     }
-
+    timer_end1[iter] = get_time();
+    timer_start2[iter] = get_time();
     // sort guess_t
     qsort(guess_t, n, sizeof(tuple), cmp);
-
+    timer_end2[iter] = get_time();
+    timer_start3[iter]=get_time();
     // merge top 2k with T (this can be a lot better)
     // may need to change to indicies
     val = guess_t[2*k-1].value;
@@ -131,7 +190,8 @@ main(int argc, char **argv){
       else
 	break;
     }
-    
+    timer_end3[iter]=get_time();
+    timer_start4[iter]=get_time();
     //reduce Phi
     l = 0;
     for(i=0;i<n;i++){
@@ -143,7 +203,8 @@ main(int argc, char **argv){
 	}
       }
     }
-
+    timer_end4[iter]=get_time();
+    timer_start5[iter]=get_time();
     // reduce system size and solve for least square, store answer in w
     trans = 'N';
     ni = size(T,n);
@@ -154,14 +215,17 @@ main(int argc, char **argv){
     for(i=0;i<m;i++){
       w[i] = y[i];
     }
-
+    timer_end5[iter]=get_time();
+    timer_start6[iter]=get_time();
     dgels_(&trans,&m,&ni,&one,Phi_reduced1,&m,w,&lba,work,&lwork,&info);
 
-    if((int)info!=0){
+    if(info!=0){
       printf("matrix has illegal value or does not have full rank\n");
       return 1;
     }
 
+    timer_end6[iter]=get_time();
+    timer_start7[iter]=get_time();
     //move abs(w) to b_tuple
     for(i=0;i<mn;i++){
       if(w[i] < 0)
@@ -170,12 +234,13 @@ main(int argc, char **argv){
 	b_tuple[i].value = w[i];
       b_tuple[i].index = i;
     }
-
+    
     // include numbericalprecision?
  
     // abo(b) then sort T
-    qsort(b_tuple, size(T,n), sizeof(tuple), cmp);
-    
+    qsort(b_tuple, ni, sizeof(tuple), cmp);
+    timer_end7[iter]=get_time();
+    timer_start8[iter]=get_time();
     //create a new Ti for storing indicies of indicies
     reset(Ti,n);
 
@@ -215,7 +280,8 @@ main(int argc, char **argv){
 	}
       }
     }
-
+    timer_end8[iter]=get_time();
+    timer_start9[iter]=get_time();
     trans = 'N';
     ni = size(T,n);
     dgemv_(&trans,&m,&ni,&alpha,Phi_reduced1,&m,
@@ -225,8 +291,11 @@ main(int argc, char **argv){
     for (i=0;i<m;i++){
       v[i] = y[i] - guess[i];
     }
+    timer_end9[iter]=get_time();
     iter++;
   }
+  /* end timer */
+  double end = get_time();
 
   printf("recovered x:\n");
   l=0;
@@ -240,15 +309,41 @@ main(int argc, char **argv){
     else
       printf(" 0\n");      
   }
-  /* end timer */
-  double end = get_time();
   printf("\nBenchmark: %f sec, %d iterations\n",end-start,iter);
+  for(i=0;i<10;i++){
+    printf("1: %f\n",timer_end1[i]-timer_start1[i]);
+  }
+  for(i=0;i<10;i++){
+    printf("2: %f\n",timer_end2[i]-timer_start2[i]);
+  }
+  for(i=0;i<10;i++){
+    printf("3: %f\n",timer_end3[i]-timer_start3[i]);
+  }
+  for(i=0;i<10;i++){
+    printf("4: %f\n",timer_end4[i]-timer_start4[i]);
+  }
+  for(i=0;i<10;i++){
+    printf("5: %f\n",timer_end5[i]-timer_start5[i]);
+  }
+  for(i=0;i<10;i++){
+    printf("6: %f\n",timer_end6[i]-timer_start6[i]);
+  }
+  for(i=0;i<10;i++){
+    printf("7: %f\n",timer_end7[i]-timer_start7[i]);
+  }
+  for(i=0;i<10;i++){
+    printf("8: %f\n",timer_end8[i]-timer_start8[i]);
+  }
+  for(i=0;i<10;i++){
+    printf("9: %f\n",timer_end9[i]-timer_start9[i]);
+  }
 }
 
 /* Function Implementations */
 
 void loadComplexMatrixFromFile(double *buffer, int m, int n, char *filename){
   int filesize = m*n;
+  //segfaults here if filesize is too big
   double tmp[filesize*2];
   FILE *f;
   int r;
@@ -297,6 +392,7 @@ void print_tuple(tuple *t, int n){
 int cmp (const void *a, const void *b){
   tuple pa = *(const tuple*) a;
   tuple pb = *(const tuple*) b;
+  //return pb.value - pa.value;
   pa.value = pa.value - pb.value;
   if(pa.value == 0)
     return 0;
@@ -305,12 +401,11 @@ int cmp (const void *a, const void *b){
   return 0;
 }
 
-double get_time()
-{
-    struct timeval t;
-    struct timezone tzp;
-    gettimeofday(&t, &tzp);
-    return t.tv_sec + t.tv_usec*1e-6;
+double get_time(){
+  struct timeval t;
+  struct timezone tzp;
+  gettimeofday(&t, &tzp);
+  return t.tv_sec + t.tv_usec*1e-6;
 }
 
 /* SET Functions */
