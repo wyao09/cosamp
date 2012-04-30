@@ -54,37 +54,105 @@ int size(int *set, int n);
 double get_time();
 
 
-typedef struct forest_node_simple_t {
-    void* value;
-    struct forest_node_simple_t* parent;
-} forest_node_simple;
+typedef struct link_node {
+  int value;
+  struct link_node* parent; //aka nxt?
+} link_node;
 
-forest_node_simple* FindSimple(forest_node_simple* node) {
-    while (node->parent != NULL) {
-        node = node->parent;
-    }
-    return node;
+link_node* FindSimple(link_node* node) {
+  while (node->parent != NULL) {
+    node = node->parent;
+  }
+  return node;
 }
 
-int SizeSimple(forest_node_simple* node){
+int SizeSimple(link_node* node){
+  if(node->value == NULL)
+     return 0;
   int n = 1;
-   while (node->parent != NULL) {
-     node = node->parent;
-     n++;
-   }
-   return n;
+  while (node->parent != NULL) {
+    printf("%d\n",n);
+    node = node->parent;
+    n++;
+  }
+  return n;
 }
+/*
+// ensures sorted order (min to max)
+void UnionSimple(link_node* node_shorter, link_node* node_longer) {
+  link_node* curr1 = node_shorter;
+  link_node* curr2 = node_longer;
+  link_node* out;
+  link_node* curr_out;
 
-void UnionSimple(forest_node_simple* node1, forest_node_simple* node2) {
-    node2->parent = node1; /* or node1->parent = node2; */
-    // need to loop through and check for duplicate
-}
+  if(curr1.value < curr2.value){
+    curr_out = curr1;
+    out = curr1;
+    curr1 = curr1->parent;
+  }
+  else{
+    curr_out = curr2;
+    out = curr2;
+    curr2 = curr2->parent;
+  }
 
-forest_node_simple* MakeSetSimple(void* value) {
-    forest_node_simple* node = malloc(sizeof(forest_node_simple));
-    node->value = value;
+  // need to loop through and check for duplicate
+  while(curr1.value != NULL && curr2.value != NULL){
+    if(curr1.value == curr2.value){
+      curr_out.parent = curr1;
+      curr1 = curr1->parent;
+      curr2 = curr2->parent;
+    }
+    curr = curr->parent;
+  }
+  
+  node_longer->parent = node_shorter; /* or node1->parent = node2; */
+   
+//}
+
+link_node* EmptySet(){
+    link_node* node = malloc(sizeof(link_node));
+    node->value = NULL;
     node->parent = NULL;
     return node;
+}
+
+link_node* MakeSetSimple(int value) {
+  link_node* node = malloc(sizeof(link_node));
+  node->value = value;
+  node->parent = NULL;
+  return node;
+}
+
+//sorted max to min
+link_node* AddSingleton(link_node* n, int value){
+  link_node* node = n;
+  printf("%d\n",SizeSimple(n));
+  if(SizeSimple(n) == 0){
+    free(n);
+    n = MakeSetSimple(value);
+    return n;
+  }
+
+  while(node->parent != NULL){
+    if(node->parent->value < value){
+      link_node* new = MakeSetSimple(value);
+      // first or second
+      if(node->value > value){
+	new->parent = node->parent;
+	node->parent = new;
+      }
+      else{
+	new->parent = node;
+	node = new;
+	n = new;
+      }
+      return n;
+    }
+    node = node->parent;
+  }
+  node->parent = MakeSetSimple(value);
+  return n;
 }
 
 
@@ -95,6 +163,14 @@ forest_node_simple* MakeSetSimple(void* value) {
 */
 
 main(int argc, char **argv){
+
+  //test
+  /*
+  link_node* node = EmptySet();// = MakeSetSimple(5);
+  node = AddSingleton(node,1);
+  printf("n = %d\n",SizeSimple(node));
+  */
+
   if(argc !=4 && argc !=6){
     printf("%d\n",argc);
     printf("usage: cosamp [sparsity] [m] [n] [Phi filename] [y filename]\n");
@@ -120,6 +196,8 @@ main(int argc, char **argv){
   int mn = max(m,n);
   int T[n]; //stores indicies
   int Ti[n]; //stores indicies of indicies
+  //link_node T;
+  //link_node Ti;
   doublereal v[n]; //working copy of y
   doublereal w[mn]; //working copy of y;  replaced during least square
   doublereal Phi_reduced1[m*n];
@@ -146,7 +224,6 @@ main(int argc, char **argv){
 
   // populate Phi and y from file and reset indicies
   loadComplexMatrixFromFile(Phi, m, n, Phi_file);
-  printf("hit here\n");
   loadComplexMatrixFromFile(y, m, 1, y_file);
   reset(T,n);
   reset(Ti,n);
@@ -175,11 +252,11 @@ main(int argc, char **argv){
       guess_t[i].index = i;
     }
     timer_end1[iter] = get_time();
-    timer_start2[iter] = get_time();
+    timer_start2[iter] = get_time(); //.000175
     // sort guess_t
     qsort(guess_t, n, sizeof(tuple), cmp);
     timer_end2[iter] = get_time();
-    timer_start3[iter]=get_time();
+    timer_start3[iter]=get_time(); //.000169
     // merge top 2k with T (this can be a lot better)
     // may need to change to indicies
     val = guess_t[2*k-1].value;
@@ -204,7 +281,7 @@ main(int argc, char **argv){
       }
     }
     timer_end4[iter]=get_time();
-    timer_start5[iter]=get_time();
+    timer_start5[iter]=get_time(); //.000002
     // reduce system size and solve for least square, store answer in w
     trans = 'N';
     ni = size(T,n);
@@ -216,7 +293,7 @@ main(int argc, char **argv){
       w[i] = y[i];
     }
     timer_end5[iter]=get_time();
-    timer_start6[iter]=get_time();
+    timer_start6[iter]=get_time(); //.00977 and .000321
     dgels_(&trans,&m,&ni,&one,Phi_reduced1,&m,w,&lba,work,&lwork,&info);
 
     if(info!=0){
@@ -422,4 +499,30 @@ int size(int *set, int n){
     if (set[i])
       l++;
   return l;
+}
+
+/* Written by Sanchit Karve (born2c0de) */
+void radixsort(int *a,int n)
+{
+  int i,b[n],m=0,exp=1;
+  for(i=0;i<n;i++)
+    {
+      if(a[i]>m)
+	m=a[i];
+    }
+               
+  while(m/exp>0)
+    {
+      int bucket[10]={0};
+      for(i=0;i<n;i++)
+	bucket[a[i]/exp%10]++;
+      for(i=1;i<10;i++)
+	bucket[i]+=bucket[i-1];
+      for(i=n-1;i>=0;i--)
+	b[--bucket[a[i]/exp%10]]=a[i];
+      for(i=0;i<n;i++)
+	a[i]=b[i];
+      exp*=10;
+ 
+    }               
 }
