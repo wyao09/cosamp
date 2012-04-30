@@ -18,6 +18,8 @@
 int i,j,l;
 
 //timer
+double timer_start0[10];
+double timer_end0[10];
 double timer_start1[10];
 double timer_end1[10];
 double timer_start2[10];
@@ -238,10 +240,11 @@ main(int argc, char **argv){
 
   // COSAMP Starts Here
   while((iter < MAX_ITER) && (dnrm2_(&m,v,&one)/dnrm2_(&m,y,&one) > tol)){
-    timer_start1[iter] = get_time();
+    timer_start0[iter] = get_time();
     trans = 'C';
     dgemv_(&trans,&m,&n,&alpha,Phi,&m,v,&one,&beta,guess,&one);
-
+    timer_end0[iter] = get_time();
+    timer_start1[iter] = get_time();
     // y = abs(Phi* *v) and add index
     // may have to loop with dcabs1_(doublecomplex z)
     for (i=0;i<n;i++){
@@ -272,8 +275,8 @@ main(int argc, char **argv){
     //reduce Phi
     l = 0;
     for(i=0;i<n;i++){
-      for(j=0;j<m;j++){
-	if(T[i]){
+      if(T[i]){
+	for(j=0;j<m;j++){
 	  Phi_reduced1[l] = Phi[i*m+j];
 	  Phi_reduced2[l] = Phi[i*m+j];
 	  l++;
@@ -388,6 +391,9 @@ main(int argc, char **argv){
   }
   printf("\nBenchmark: %f sec, %d iterations\n",end-start,iter);
   for(i=0;i<10;i++){
+    printf("0: %f\n",timer_end0[i]-timer_start0[i]);
+  }
+  for(i=0;i<10;i++){
     printf("1: %f\n",timer_end1[i]-timer_start1[i]);
   }
   for(i=0;i<10;i++){
@@ -469,13 +475,13 @@ void print_tuple(tuple *t, int n){
 int cmp (const void *a, const void *b){
   tuple pa = *(const tuple*) a;
   tuple pb = *(const tuple*) b;
-  //return pb.value - pa.value;
+  //return (int) (pb.value - pa.value);
   pa.value = pa.value - pb.value;
   if(pa.value == 0)
     return 0;
   if(pa.value < 0)
     return 1;
-  return 0;
+  return -1;
 }
 
 double get_time(){
