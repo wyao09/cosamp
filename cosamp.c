@@ -6,6 +6,7 @@
 #include "clapack.h"
 #include <sys/time.h>
 #include <sys/resource.h>
+#include "pbl.h"
 
 #define MAX_ITER 10
 
@@ -55,7 +56,7 @@ void reset(int *set, int n);
 int size(int *set, int n);
 double get_time();
 
-
+/*
 typedef struct link_node {
   int value;
   struct link_node* parent; //aka nxt?
@@ -111,7 +112,7 @@ void UnionSimple(link_node* node_shorter, link_node* node_longer) {
   node_longer->parent = node_shorter; /* or node1->parent = node2; */
    
 //}
-
+/*
 link_node* EmptySet(){
     link_node* node = malloc(sizeof(link_node));
     node->value = NULL;
@@ -156,7 +157,7 @@ link_node* AddSingleton(link_node* n, int value){
   node->parent = MakeSetSimple(value);
   return n;
 }
-
+*/
 
 /*
   y = Phi * x
@@ -200,6 +201,7 @@ main(int argc, char **argv){
   int Ti[n]; //stores indicies of indicies
   //link_node T;
   //link_node Ti;
+  //PblSet* TSet = pblSetNewTreeSet();
   doublereal v[n]; //working copy of y
   doublereal w[mn]; //working copy of y;  replaced during least square
   doublereal Phi_reduced1[m*n];
@@ -220,6 +222,7 @@ main(int argc, char **argv){
   integer ni;
   integer lba;
   integer lwork;
+  int set_size = 0;
 
   /* constants */
   doublereal tol = 0.01; //tolerance for approx between successive solns. 
@@ -258,6 +261,7 @@ main(int argc, char **argv){
     timer_start2[iter] = get_time(); //.000175
     // sort guess_t
     qsort(guess_t, n, sizeof(tuple), cmp);
+    //radixsort(guess_t,n);
     timer_end2[iter] = get_time();
     timer_start3[iter]=get_time(); //.000169
     // merge top 2k with T (this can be a lot better)
@@ -265,7 +269,10 @@ main(int argc, char **argv){
     val = guess_t[2*k-1].value;
     for(i=0;i<n;i++){
       if(guess_t[i].value >= val){
-	T[guess_t[i].index] = 1;
+	if(T[guess_t[i].index] != 1){
+	  T[guess_t[i].index] = 1;
+	  set_size++;
+	}
       }
       else
 	break;
@@ -287,7 +294,7 @@ main(int argc, char **argv){
     timer_start5[iter]=get_time(); //.000002
     // reduce system size and solve for least square, store answer in w
     trans = 'N';
-    ni = size(T,n);
+    ni = set_size;//size(T,n);
     lba = max(ni,m);
     lwork = min(m,ni) + max(min(m,ni),one);
 
@@ -335,8 +342,10 @@ main(int argc, char **argv){
     l = 0;
     for(i=0;i<n;i++){
       if(T[i]){
-	if(!Ti[l])
+	if(!Ti[l]){
 	  T[i] = 0;
+	  set_size--;
+	}
 	l++;
       }
     }
@@ -363,7 +372,7 @@ main(int argc, char **argv){
     timer_end8[iter]=get_time();
     timer_start9[iter]=get_time();
     trans = 'N';
-    ni = size(T,n);
+    ni = set_size;//size(T,n);
     dgemv_(&trans,&m,&ni,&alpha,Phi_reduced1,&m,
 	   b_reduced,&one,&beta,guess,&one);
 
