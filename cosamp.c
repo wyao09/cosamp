@@ -18,29 +18,6 @@
 /* Globals */
 int i,j,l;
 
-//timer
-double timer_start0[10];
-double timer_end0[10];
-double timer_start1[10];
-double timer_end1[10];
-double timer_start2[10];
-double timer_end2[10];
-double timer_start3[10];
-double timer_end3[10];
-double timer_start4[10];
-double timer_end4[10];
-double timer_start5[10];
-double timer_end5[10];
-double timer_start6[10];
-double timer_end6[10];
-double timer_start7[10];
-double timer_end7[10];
-double timer_start8[10];
-double timer_end8[10];
-double timer_start9[10];
-double timer_end9[10];
-
-
 typedef struct{
   doublereal value;
   int index;
@@ -57,123 +34,13 @@ int size(int *set, int n);
 double get_time();
 
 /*
-typedef struct link_node {
-  int value;
-  struct link_node* parent; //aka nxt?
-} link_node;
-
-link_node* FindSimple(link_node* node) {
-  while (node->parent != NULL) {
-    node = node->parent;
-  }
-  return node;
-}
-
-int SizeSimple(link_node* node){
-  if(node->value == NULL)
-     return 0;
-  int n = 1;
-  while (node->parent != NULL) {
-    printf("%d\n",n);
-    node = node->parent;
-    n++;
-  }
-  return n;
-}
-/*
-// ensures sorted order (min to max)
-void UnionSimple(link_node* node_shorter, link_node* node_longer) {
-  link_node* curr1 = node_shorter;
-  link_node* curr2 = node_longer;
-  link_node* out;
-  link_node* curr_out;
-
-  if(curr1.value < curr2.value){
-    curr_out = curr1;
-    out = curr1;
-    curr1 = curr1->parent;
-  }
-  else{
-    curr_out = curr2;
-    out = curr2;
-    curr2 = curr2->parent;
-  }
-
-  // need to loop through and check for duplicate
-  while(curr1.value != NULL && curr2.value != NULL){
-    if(curr1.value == curr2.value){
-      curr_out.parent = curr1;
-      curr1 = curr1->parent;
-      curr2 = curr2->parent;
-    }
-    curr = curr->parent;
-  }
-  
-  node_longer->parent = node_shorter; /* or node1->parent = node2; */
-   
-//}
-/*
-link_node* EmptySet(){
-    link_node* node = malloc(sizeof(link_node));
-    node->value = NULL;
-    node->parent = NULL;
-    return node;
-}
-
-link_node* MakeSetSimple(int value) {
-  link_node* node = malloc(sizeof(link_node));
-  node->value = value;
-  node->parent = NULL;
-  return node;
-}
-
-//sorted max to min
-link_node* AddSingleton(link_node* n, int value){
-  link_node* node = n;
-  printf("%d\n",SizeSimple(n));
-  if(SizeSimple(n) == 0){
-    free(n);
-    n = MakeSetSimple(value);
-    return n;
-  }
-
-  while(node->parent != NULL){
-    if(node->parent->value < value){
-      link_node* new = MakeSetSimple(value);
-      // first or second
-      if(node->value > value){
-	new->parent = node->parent;
-	node->parent = new;
-      }
-      else{
-	new->parent = node;
-	node = new;
-	n = new;
-      }
-      return n;
-    }
-    node = node->parent;
-  }
-  node->parent = MakeSetSimple(value);
-  return n;
-}
-*/
-
-/*
   y = Phi * x
   given y and Phi, we want to solve for x
-  3 15 40
+
+  current use: ./cosamp 15 150 600 A.dat y.dat
 */
 
 main(int argc, char **argv){
-
-  //test
-  /*
-  link_node* node = EmptySet();// = MakeSetSimple(5);
-  node = AddSingleton(node,1);
-  printf("n = %d\n",SizeSimple(node));
-  */
-
   if(argc !=4 && argc !=6){
     printf("%d\n",argc);
     printf("usage: cosamp [sparsity] [m] [n] [Phi filename] [y filename]\n");
@@ -199,9 +66,7 @@ main(int argc, char **argv){
   int mn = max(m,n);
   int T[n]; //stores indicies
   int Ti[n]; //stores indicies of indicies
-  //link_node T;
-  //link_node Ti;
-  //PblSet* TSet = pblSetNewTreeSet();
+
   doublereal v[n]; //working copy of y
   doublereal w[mn]; //working copy of y;  replaced during least square
   doublereal Phi_reduced1[m*n];
@@ -238,16 +103,12 @@ main(int argc, char **argv){
     v[i] = y[i];
   }
  
-  /* start timer */
-  double start = get_time();
 
   // COSAMP Starts Here
   while((iter < MAX_ITER) && (dnrm2_(&m,v,&one)/dnrm2_(&m,y,&one) > tol)){
-    timer_start0[iter] = get_time();
     trans = 'C';
     dgemv_(&trans,&m,&n,&alpha,Phi,&m,v,&one,&beta,guess,&one);
-    timer_end0[iter] = get_time();
-    timer_start1[iter] = get_time();
+
     // y = abs(Phi* *v) and add index
     // may have to loop with dcabs1_(doublecomplex z)
     for (i=0;i<n;i++){
@@ -257,13 +118,10 @@ main(int argc, char **argv){
 	guess_t[i].value = guess[i];
       guess_t[i].index = i;
     }
-    timer_end1[iter] = get_time();
-    timer_start2[iter] = get_time(); //.000175
+
     // sort guess_t
     qsort(guess_t, n, sizeof(tuple), cmp);
-    //radixsort(guess_t,n);
-    timer_end2[iter] = get_time();
-    timer_start3[iter]=get_time(); //.000169
+
     // merge top 2k with T (this can be a lot better)
     // may need to change to indicies
     val = guess_t[2*k-1].value;
@@ -277,8 +135,7 @@ main(int argc, char **argv){
       else
 	break;
     }
-    timer_end3[iter]=get_time();
-    timer_start4[iter]=get_time();
+
     //reduce Phi
     l = 0;
     for(i=0;i<n;i++){
@@ -290,8 +147,7 @@ main(int argc, char **argv){
 	}
       }
     }
-    timer_end4[iter]=get_time();
-    timer_start5[iter]=get_time(); //.000002
+
     // reduce system size and solve for least square, store answer in w
     trans = 'N';
     ni = set_size;//size(T,n);
@@ -302,8 +158,7 @@ main(int argc, char **argv){
     for(i=0;i<m;i++){
       w[i] = y[i];
     }
-    timer_end5[iter]=get_time();
-    timer_start6[iter]=get_time(); //.00977 and .000321
+
     dgels_(&trans,&m,&ni,&one,Phi_reduced1,&m,w,&lba,work,&lwork,&info);
 
     if(info!=0){
@@ -311,8 +166,7 @@ main(int argc, char **argv){
       return 1;
     }
 
-    timer_end6[iter]=get_time();
-    timer_start7[iter]=get_time();
+
     //move abs(w) to b_tuple
     for(i=0;i<mn;i++){
       if(w[i] < 0)
@@ -322,12 +176,10 @@ main(int argc, char **argv){
       b_tuple[i].index = i;
     }
     
-    // include numbericalprecision?
- 
+    // include numbericalprecision? 
     // abo(b) then sort T
     qsort(b_tuple, ni, sizeof(tuple), cmp);
-    timer_end7[iter]=get_time();
-    timer_start8[iter]=get_time();
+
     //create a new Ti for storing indicies of indicies
     reset(Ti,n);
 
@@ -369,10 +221,9 @@ main(int argc, char **argv){
 	}
       }
     }
-    timer_end8[iter]=get_time();
-    timer_start9[iter]=get_time();
+
     trans = 'N';
-    ni = set_size;//size(T,n);
+    ni = set_size;
     dgemv_(&trans,&m,&ni,&alpha,Phi_reduced1,&m,
 	   b_reduced,&one,&beta,guess,&one);
 
@@ -380,11 +231,8 @@ main(int argc, char **argv){
     for (i=0;i<m;i++){
       v[i] = y[i] - guess[i];
     }
-    timer_end9[iter]=get_time();
     iter++;
   }
-  /* end timer */
-  double end = get_time();
 
   printf("recovered x:\n");
   l=0;
@@ -397,37 +245,6 @@ main(int argc, char **argv){
     }
     else
       printf(" 0\n");      
-  }
-  printf("\nBenchmark: %f sec, %d iterations\n",end-start,iter);
-  for(i=0;i<10;i++){
-    printf("0: %f\n",timer_end0[i]-timer_start0[i]);
-  }
-  for(i=0;i<10;i++){
-    printf("1: %f\n",timer_end1[i]-timer_start1[i]);
-  }
-  for(i=0;i<10;i++){
-    printf("2: %f\n",timer_end2[i]-timer_start2[i]);
-  }
-  for(i=0;i<10;i++){
-    printf("3: %f\n",timer_end3[i]-timer_start3[i]);
-  }
-  for(i=0;i<10;i++){
-    printf("4: %f\n",timer_end4[i]-timer_start4[i]);
-  }
-  for(i=0;i<10;i++){
-    printf("5: %f\n",timer_end5[i]-timer_start5[i]);
-  }
-  for(i=0;i<10;i++){
-    printf("6: %f\n",timer_end6[i]-timer_start6[i]);
-  }
-  for(i=0;i<10;i++){
-    printf("7: %f\n",timer_end7[i]-timer_start7[i]);
-  }
-  for(i=0;i<10;i++){
-    printf("8: %f\n",timer_end8[i]-timer_start8[i]);
-  }
-  for(i=0;i<10;i++){
-    printf("9: %f\n",timer_end9[i]-timer_start9[i]);
   }
 }
 
@@ -514,30 +331,4 @@ int size(int *set, int n){
     if (set[i])
       l++;
   return l;
-}
-
-/* Written by Sanchit Karve (born2c0de) */
-void radixsort(int *a,int n)
-{
-  int i,b[n],m=0,exp=1;
-  for(i=0;i<n;i++)
-    {
-      if(a[i]>m)
-	m=a[i];
-    }
-               
-  while(m/exp>0)
-    {
-      int bucket[10]={0};
-      for(i=0;i<n;i++)
-	bucket[a[i]/exp%10]++;
-      for(i=1;i<10;i++)
-	bucket[i]+=bucket[i-1];
-      for(i=n-1;i>=0;i--)
-	b[--bucket[a[i]/exp%10]]=a[i];
-      for(i=0;i<n;i++)
-	a[i]=b[i];
-      exp*=10;
- 
-    }               
 }
